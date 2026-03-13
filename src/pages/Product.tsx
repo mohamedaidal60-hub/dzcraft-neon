@@ -150,10 +150,22 @@ export default function Product() {
           )}
 
           <button
-            disabled
-            className="w-full py-5 rounded-2xl font-medium text-lg flex items-center justify-center transition-all bg-stone-200 text-stone-500 cursor-not-allowed"
+            onClick={handleAddToCart}
+            className={`w-full py-5 rounded-2xl font-medium text-lg flex items-center justify-center transition-all ${
+              added 
+                ? 'bg-emerald-600 text-white' 
+                : 'bg-stone-900 text-white hover:bg-stone-800 shadow-xl shadow-stone-900/20'
+            }`}
           >
-            Achat bientôt disponible
+            {added ? (
+              <>
+                <Check className="w-5 h-5 mr-2" /> Ajouté au panier
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-5 h-5 mr-2" /> Ajouter au panier
+              </>
+            )}
           </button>
 
           <div className="mt-12 pt-8 border-t border-stone-200 grid grid-cols-2 gap-8 text-sm text-stone-500">
