@@ -67,21 +67,28 @@ app.get('/api/products', async (req, res) => {
     `;
     const params = [];
     if (category) {
-      params.push(category);
-      query += ` AND c.slug = $${params.length}`;
+      const catArray = (category as string).split(',');
+      params.push(catArray);
+      query += ` AND EXISTS (SELECT 1 FROM categories c WHERE c.id = ANY(p.category_ids) AND c.slug = ANY($${params.length}))`;
     }
+    
+    // Multi-select filters
     if (ethnicity) {
-      params.push(ethnicity);
-      query += ` AND p.ethnicity = $${params.length}`;
+      const ethArray = (ethnicity as string).split(',');
+      params.push(ethArray);
+      query += ` AND p.ethnicity && $${params.length}`;
     }
     if (wilaya) {
-      params.push(wilaya);
-      query += ` AND p.wilaya = $${params.length}`;
+      const wilArray = (wilaya as string).split(',');
+      params.push(wilArray);
+      query += ` AND p.wilaya && $${params.length}`;
     }
     if (target_group) {
-      params.push(target_group);
-      query += ` AND p.target_group = $${params.length}`;
+      const tgtArray = (target_group as string).split(',');
+      params.push(tgtArray);
+      query += ` AND p.target_group && $${params.length}`;
     }
+
     const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (error: any) {

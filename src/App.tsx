@@ -66,7 +66,7 @@ export default function App() {
         <Route path="/bienvenue" element={<Landing />} />
         <Route path="/selection" element={<Selection />} />
         <Route path="/" element={<Layout />}>
-          <Route index element={!userSelections ? <Navigate to="/selection" replace /> : <Home />} />
+          <Route index element={<Home />} />
           <Route path="collection/:category" element={<Collection />} />
           <Route path="product/:id" element={<Product />} />
           <Route path="qui-suis-je" element={<About />} />

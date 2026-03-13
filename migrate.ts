@@ -24,11 +24,11 @@ CREATE TABLE IF NOT EXISTS products (
   slug TEXT NOT NULL,
   description TEXT,
   price NUMERIC NOT NULL,
-  category_id INTEGER REFERENCES categories(id),
+  category_ids INTEGER[],
   image_url TEXT,
-  ethnicity TEXT, 
-  wilaya TEXT,
-  target_group TEXT,
+  ethnicity TEXT[], 
+  wilaya TEXT[],
+  target_group TEXT[],
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

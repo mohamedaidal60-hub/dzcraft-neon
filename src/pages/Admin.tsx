@@ -29,8 +29,8 @@ export default function Admin() {
   const [message, setMessage] = useState('');
 
   const [productForm, setProductForm] = useState({
-    name: '', slug: '', description: '', price: '', category_id: '', image_url: '',
-    ethnicity: 'Arabe', wilaya: '16 - Alger', target_group: 'Adulte'
+    name: '', slug: '', description: '', price: '', category_ids: [] as number[], image_url: '',
+    ethnicity: [] as string[], wilaya: [] as string[], target_group: [] as string[]
   });
 
   const [settingsForm, setSettingsForm] = useState({
@@ -73,9 +73,6 @@ export default function Admin() {
     
     const catData = await catRes.json();
     setCategories(catData);
-    if (catData.length > 0 && !productForm.category_id) {
-      setProductForm(prev => ({ ...prev, category_id: catData[0].id.toString() }));
-    }
 
     setClients(await cliRes.json());
     setHistoryPosts(await histRes.json());
@@ -122,7 +119,7 @@ export default function Admin() {
           ...productForm,
           image_url: finalImageUrl,
           price: parseFloat(productForm.price),
-          category_id: parseInt(productForm.category_id)
+          category_ids: productForm.category_ids
         })
       });
       const data = await res.json();
@@ -130,8 +127,8 @@ export default function Admin() {
         showMessage('Produit ajouté avec succès !');
         setProductForm({ 
           name: '', slug: '', description: '', price: '', 
-          category_id: categories[0]?.id.toString() || '', image_url: '',
-          ethnicity: 'Arabe', wilaya: '16 - Alger', target_group: 'Adulte'
+          category_ids: [], image_url: '',
+          ethnicity: [], wilaya: [], target_group: []
         });
         setProductFile(null);
       } else {
@@ -296,29 +293,104 @@ export default function Admin() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">Catégorie</label>
-                  <select required value={productForm.category_id} onChange={e => setProductForm({...productForm, category_id: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500">
-                    {categories.map((cat: any) => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
-                  </select>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Catégories (plusieurs choix possibles)</label>
+                  <div className="flex flex-wrap gap-2 p-3 border border-stone-200 rounded-xl bg-stone-50/50">
+                    {categories.map((cat: any) => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => {
+                          const ids = productForm.category_ids.includes(cat.id)
+                            ? productForm.category_ids.filter(id => id !== cat.id)
+                            : [...productForm.category_ids, cat.id];
+                          setProductForm({ ...productForm, category_ids: ids });
+                        }}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                          productForm.category_ids.includes(cat.id)
+                            ? 'bg-stone-900 text-white'
+                            : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-100'
+                        }`}
+                      >
+                        {cat.name}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                <div className="grid grid-cols-1 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Ethnie</label>
-                    <select value={productForm.ethnicity} onChange={e => setProductForm({...productForm, ethnicity: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500 bg-white">
-                      {ETHNICITIES.map(eth => <option key={eth} value={eth}>{eth}</option>)}
-                    </select>
+                    <label className="block text-sm font-medium text-stone-700 mb-2">Ethnies (plusieurs choix possibles)</label>
+                    <div className="flex flex-wrap gap-2 p-3 border border-stone-200 rounded-xl bg-stone-50/50">
+                      {ETHNICITIES.map(eth => (
+                        <button
+                          key={eth}
+                          type="button"
+                          onClick={() => {
+                            const values = productForm.ethnicity.includes(eth)
+                              ? productForm.ethnicity.filter(v => v !== eth)
+                              : [...productForm.ethnicity, eth];
+                            setProductForm({ ...productForm, ethnicity: values });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                            productForm.ethnicity.includes(eth)
+                              ? 'bg-emerald-600 text-white'
+                              : 'bg-white text-stone-600 border border-stone-200 hover:bg-emerald-50'
+                          }`}
+                        >
+                          {eth}
+                        </button>
+                      ))}
+                    </div>
                   </div>
+
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Wilaya</label>
-                    <select value={productForm.wilaya} onChange={e => setProductForm({...productForm, wilaya: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500 bg-white">
-                      {WILAYAS.map(w => <option key={w} value={w}>{w}</option>)}
-                    </select>
+                    <label className="block text-sm font-medium text-stone-700 mb-2">Wilayas (plusieurs choix possibles)</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2 p-3 border border-stone-200 rounded-xl bg-stone-50/50 max-h-60 overflow-y-auto">
+                      {WILAYAS.map(w => (
+                        <button
+                          key={w}
+                          type="button"
+                          onClick={() => {
+                            const values = productForm.wilaya.includes(w)
+                              ? productForm.wilaya.filter(v => v !== w)
+                              : [...productForm.wilaya, w];
+                            setProductForm({ ...productForm, wilaya: values });
+                          }}
+                          className={`px-2 py-1.5 rounded-lg text-[10px] font-medium transition-colors text-left truncate ${
+                            productForm.wilaya.includes(w)
+                              ? 'bg-blue-600 text-white'
+                              : 'bg-white text-stone-600 border border-stone-200 hover:bg-blue-50'
+                          }`}
+                        >
+                          {w}
+                        </button>
+                      ))}
+                    </div>
                   </div>
+
                   <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Public cible</label>
-                    <select value={productForm.target_group} onChange={e => setProductForm({...productForm, target_group: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500 bg-white">
-                      {TARGET_GROUPS.map(tg => <option key={tg} value={tg}>{tg}</option>)}
-                    </select>
+                    <label className="block text-sm font-medium text-stone-700 mb-2">Collections / Public cible (plusieurs choix possibles)</label>
+                    <div className="flex flex-wrap gap-2 p-3 border border-stone-200 rounded-xl bg-stone-50/50">
+                      {TARGET_GROUPS.map(tg => (
+                        <button
+                          key={tg}
+                          type="button"
+                          onClick={() => {
+                            const values = productForm.target_group.includes(tg)
+                              ? productForm.target_group.filter(v => v !== tg)
+                              : [...productForm.target_group, tg];
+                            setProductForm({ ...productForm, target_group: values });
+                          }}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                            productForm.target_group.includes(tg)
+                              ? 'bg-amber-600 text-white'
+                              : 'bg-white text-stone-600 border border-stone-200 hover:bg-amber-50'
+                          }`}
+                        >
+                          {tg}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -332,7 +404,11 @@ export default function Admin() {
                         const res = await fetch('/api/admin/ai-generate', {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ name: productForm.name, ethnicity: productForm.ethnicity, wilaya: productForm.wilaya })
+                          body: JSON.stringify({ 
+                            name: productForm.name, 
+                            ethnicity: productForm.ethnicity.join(', '), 
+                            wilaya: productForm.wilaya.join(', ') 
+                          })
                         });
                         const data = await res.json();
                         if (data.description) {
