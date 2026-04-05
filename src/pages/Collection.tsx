@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Filter, ChevronDown, Check, X } from 'lucide-react';
+import { Filter, ChevronDown, Check, X, ArrowRight } from 'lucide-react';
 
 const ETHNICITIES = ['Arabe', 'Kabyle', 'Chaoui', 'Touareg', 'Mozabite', 'Chenoui', 'Chelhi', 'Sahraoui'];
 const WILAYAS = [
@@ -181,9 +181,14 @@ export default function Collection() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-24 text-stone-500 bg-stone-50 rounded-3xl">
-          <p className="text-xl mb-4">Aucun produit ne correspond à ces critères dans cette collection.</p>
-          <button onClick={() => setFilters({ ethnicity: [], wilaya: [] })} className="text-emerald-600 font-medium hover:underline">Voir tous les produits de la collection</button>
+        <div className="text-center py-24 px-6 bg-white rounded-[3rem] border border-stone-100 shadow-sm max-w-2xl mx-auto">
+          <h3 className="text-2xl font-serif text-stone-900 mb-4">Le client est roi</h3>
+          <p className="text-stone-600 text-lg mb-8 leading-relaxed">
+            Nous n'imposons aucune collection figée. Chez DZCRAFTDESIGN, nous travaillons selon vos demandes et vos racines.
+          </p>
+          <Link to="/bienvenue" className="inline-flex items-center gap-2 px-8 py-4 bg-stone-900 text-white rounded-full font-medium hover:bg-emerald-600 transition-all">
+            Commander mon modèle personnalisé <ArrowRight className="w-4 h-4" />
+          </Link>
         </div>
       )}
     </div>
