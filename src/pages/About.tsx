@@ -19,8 +19,19 @@ export default function About() {
           <h1 className="text-4xl md:text-5xl font-serif mb-8 leading-tight">
             L'histoire derrière DZCRAFTDESIGN
           </h1>
-          <div className="prose prose-stone text-stone-600 text-lg leading-relaxed space-y-6 whitespace-pre-line">
-            {settings.about_text || 'Chargement...'}
+          <div className="prose prose-stone text-stone-600 text-lg leading-relaxed space-y-6">
+            <p>
+              Je suis franco-algérienne, née à Marseille, donc presque en Algérie. J’ai grandi entre deux rives, bercée par une double culture qui a naturellement façonnée mon identité. La proximité géographique et l’éducation font qu’on ne s’éloigne jamais vraiment de ses racines.
+            </p>
+            <p>
+              Comme beaucoup, j’ai d’abord exploré le monde, construit mon parcours et travaillé pendant plus de 20 ans au sein du leader mondial du textile. En parallèle, j’avais cette passion qui ne m’a jamais quittée : la customisation.
+            </p>
+            <p>
+              Création sur différents supports, accessoires ou vêtements inspirés de l’Algérie, de ses codes, de ses traditions, de son histoire, comme un fil conducteur intime.
+            </p>
+            <p>
+              Puis est venu le déclic : l’envie profonde de donner du sens, de contribuer à ma manière à l’économie algérienne. Parce qu’au fond, on lui doit beaucoup. Et parce qu’il arrive un moment où l’on ressent le besoin de se rapprocher de ce qui nous définit vraiment.
+            </p>
           </div>
         </motion.div>
         

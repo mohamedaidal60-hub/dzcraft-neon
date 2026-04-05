@@ -2,18 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
 import { motion } from 'motion/react';
-import { Plus, Package, LogOut, Settings, Users, BookOpen, Trash2, Upload, Image as ImageIcon, Sparkles } from 'lucide-react';
-
-const ETHNICITIES = ['Arabe', 'Kabyle', 'Chaoui', 'Touareg', 'Mozabite', 'Chenoui', 'Chelhi', 'Sahraoui'];
-const TARGET_GROUPS = ['Adulte', 'Enfant', 'Bébé', 'Accessoire'];
-const WILAYAS = [
-  '01 - Adrar', '02 - Chlef', '03 - Laghouat', '04 - Oum El Bouaghi', '05 - Batna', '06 - Béjaïa', '07 - Biskra', '08 - Béchar', '09 - Blida', '10 - Bouira',
-  '11 - Tamanrasset', '12 - Tébessa', '13 - Tlemcen', '14 - Tiaret', '15 - Tizi Ouzou', '16 - Alger', '17 - Djelfa', '18 - Jijel', '19 - Sétif', '20 - Saïda',
-  '21 - Skikda', '22 - Sidi Bel Abbès', '23 - Annaba', '24 - Guelma', '25 - Constantine', '26 - Médéa', '27 - Mostaganem', '28 - M\'Sila', '29 - Mascara', '30 - Ouargla',
-  '31 - Oran', '32 - El Bayadh', '33 - Illizi', '34 - Bordj Bou Arreridj', '35 - Boumerdès', '36 - El Tarf', '37 - Tindouf', '38 - Tissemsilt', '39 - El Oued', '40 - Khenchela',
-  '41 - Souk Ahras', '42 - Tipaza', '43 - Mila', '44 - Aïn Defla', '45 - Naâma', '46 - Aïn Témouchent', '47 - Ghardaïa', '48 - Relizane', '49 - El M\'Ghair', '50 - El Meniaa',
-  '51 - Ouled Djellal', '52 - Bordj Badji Mokhtar', '53 - Béni Abbès', '54 - Timimoun', '55 - Touggourt', '56 - Djanet', '57 - In Salah', '58 - In Guezzam'
-];
+import { Plus, Package, LogOut, Settings, Users, BookOpen, Trash2, Upload, Image as ImageIcon } from 'lucide-react';
 
 export default function Admin() {
   const user = useStore(state => state.user);
@@ -21,7 +10,7 @@ export default function Admin() {
   const settings = useStore(state => state.settings);
   const setSettings = useStore(state => state.setSettings);
   const navigate = useNavigate();
-  
+
   const [activeTab, setActiveTab] = useState('products');
   const [categories, setCategories] = useState([]);
   const [clients, setClients] = useState([]);
@@ -29,8 +18,7 @@ export default function Admin() {
   const [message, setMessage] = useState('');
 
   const [productForm, setProductForm] = useState({
-    name: '', slug: '', description: '', price: '', category_ids: [] as number[], image_url: '',
-    ethnicity: [] as string[], wilaya: [] as string[], target_group: [] as string[]
+    name: '', slug: '', description: '', price: '', category_id: '', image_url: ''
   });
 
   const [settingsForm, setSettingsForm] = useState({
@@ -70,9 +58,12 @@ export default function Admin() {
       fetch('/api/admin/clients'),
       fetch('/api/history')
     ]);
-    
+
     const catData = await catRes.json();
     setCategories(catData);
+    if (catData.length > 0 && !productForm.category_id) {
+      setProductForm(prev => ({ ...prev, category_id: catData[0].id.toString() }));
+    }
 
     setClients(await cliRes.json());
     setHistoryPosts(await histRes.json());
@@ -119,17 +110,13 @@ export default function Admin() {
           ...productForm,
           image_url: finalImageUrl,
           price: parseFloat(productForm.price),
-          category_ids: productForm.category_ids
+          category_id: parseInt(productForm.category_id)
         })
       });
       const data = await res.json();
       if (data.success) {
         showMessage('Produit ajouté avec succès !');
-        setProductForm({ 
-          name: '', slug: '', description: '', price: '', 
-          category_ids: [], image_url: '',
-          ethnicity: [], wilaya: [], target_group: []
-        });
+        setProductForm({ name: '', slug: '', description: '', price: '', category_id: categories[0]?.id.toString() || '', image_url: '' });
         setProductFile(null);
       } else {
         showMessage('Erreur lors de l\'ajout du produit.');
@@ -146,7 +133,7 @@ export default function Admin() {
     setUploading(true);
     try {
       const newSettings = { ...settingsForm };
-      
+
       if (logoFile) {
         const url = await uploadImage(logoFile);
         if (url) newSettings.logo_url = url;
@@ -277,7 +264,7 @@ export default function Admin() {
         </div>
 
         <div className="flex-grow bg-white p-8 rounded-3xl shadow-sm border border-stone-100">
-          
+
           {activeTab === 'products' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2 className="text-2xl font-serif mb-6">Ajouter un produit</h2>
@@ -285,146 +272,22 @@ export default function Admin() {
                 <div className="grid grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-stone-700 mb-2">Nom du produit</label>
-                    <input type="text" required value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value, slug: e.target.value.toLowerCase().replace(/ /g, '-')})} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
+                    <input type="text" required value={productForm.name} onChange={e => setProductForm({ ...productForm, name: e.target.value, slug: e.target.value.toLowerCase().replace(/ /g, '-') })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-stone-700 mb-2">Prix (€)</label>
-                    <input type="number" step="0.01" required value={productForm.price} onChange={e => setProductForm({...productForm, price: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
+                    <input type="number" step="0.01" required value={productForm.price} onChange={e => setProductForm({ ...productForm, price: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">Catégories (plusieurs choix possibles)</label>
-                  <div className="flex flex-wrap gap-2 p-3 border border-stone-200 rounded-xl bg-stone-50/50">
-                    {categories.map((cat: any) => (
-                      <button
-                        key={cat.id}
-                        type="button"
-                        onClick={() => {
-                          const ids = productForm.category_ids.includes(cat.id)
-                            ? productForm.category_ids.filter(id => id !== cat.id)
-                            : [...productForm.category_ids, cat.id];
-                          setProductForm({ ...productForm, category_ids: ids });
-                        }}
-                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                          productForm.category_ids.includes(cat.id)
-                            ? 'bg-stone-900 text-white'
-                            : 'bg-white text-stone-600 border border-stone-200 hover:bg-stone-100'
-                        }`}
-                      >
-                        {cat.name}
-                      </button>
-                    ))}
-                  </div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Catégorie</label>
+                  <select required value={productForm.category_id} onChange={e => setProductForm({ ...productForm, category_id: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500">
+                    {categories.map((cat: any) => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
+                  </select>
                 </div>
-
-                <div className="grid grid-cols-1 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Ethnies (plusieurs choix possibles)</label>
-                    <div className="flex flex-wrap gap-2 p-3 border border-stone-200 rounded-xl bg-stone-50/50">
-                      {ETHNICITIES.map(eth => (
-                        <button
-                          key={eth}
-                          type="button"
-                          onClick={() => {
-                            const values = productForm.ethnicity.includes(eth)
-                              ? productForm.ethnicity.filter(v => v !== eth)
-                              : [...productForm.ethnicity, eth];
-                            setProductForm({ ...productForm, ethnicity: values });
-                          }}
-                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                            productForm.ethnicity.includes(eth)
-                              ? 'bg-emerald-600 text-white'
-                              : 'bg-white text-stone-600 border border-stone-200 hover:bg-emerald-50'
-                          }`}
-                        >
-                          {eth}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Wilayas (plusieurs choix possibles)</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2 p-3 border border-stone-200 rounded-xl bg-stone-50/50 max-h-60 overflow-y-auto">
-                      {WILAYAS.map(w => (
-                        <button
-                          key={w}
-                          type="button"
-                          onClick={() => {
-                            const values = productForm.wilaya.includes(w)
-                              ? productForm.wilaya.filter(v => v !== w)
-                              : [...productForm.wilaya, w];
-                            setProductForm({ ...productForm, wilaya: values });
-                          }}
-                          className={`px-2 py-1.5 rounded-lg text-[10px] font-medium transition-colors text-left truncate ${
-                            productForm.wilaya.includes(w)
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-white text-stone-600 border border-stone-200 hover:bg-blue-50'
-                          }`}
-                        >
-                          {w}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-stone-700 mb-2">Collections / Public cible (plusieurs choix possibles)</label>
-                    <div className="flex flex-wrap gap-2 p-3 border border-stone-200 rounded-xl bg-stone-50/50">
-                      {TARGET_GROUPS.map(tg => (
-                        <button
-                          key={tg}
-                          type="button"
-                          onClick={() => {
-                            const values = productForm.target_group.includes(tg)
-                              ? productForm.target_group.filter(v => v !== tg)
-                              : [...productForm.target_group, tg];
-                            setProductForm({ ...productForm, target_group: values });
-                          }}
-                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                            productForm.target_group.includes(tg)
-                              ? 'bg-amber-600 text-white'
-                              : 'bg-white text-stone-600 border border-stone-200 hover:bg-amber-50'
-                          }`}
-                        >
-                          {tg}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
                 <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="block text-sm font-medium text-stone-700">Description</label>
-                    <button type="button" onClick={async () => {
-                      if (!productForm.name) return showMessage('Mettez un nom de produit d\'abord');
-                      setUploading(true);
-                      try {
-                        const res = await fetch('/api/admin/ai-generate', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ 
-                            name: productForm.name, 
-                            ethnicity: productForm.ethnicity.join(', '), 
-                            wilaya: productForm.wilaya.join(', ') 
-                          })
-                        });
-                        const data = await res.json();
-                        if (data.description) {
-                          setProductForm({ ...productForm, description: data.description });
-                          showMessage('Description générée !');
-                        }
-                      } catch (err) {
-                        showMessage('Erreur IA');
-                      } finally {
-                        setUploading(false);
-                      }
-                    }} className="flex items-center text-xs font-medium text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg transition-colors">
-                      <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Générer avec l'IA
-                    </button>
-                  </div>
-                  <textarea required rows={4} value={productForm.description} onChange={e => setProductForm({...productForm, description: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Description</label>
+                  <textarea required rows={4} value={productForm.description} onChange={e => setProductForm({ ...productForm, description: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-stone-700 mb-2">Image du produit</label>
@@ -444,11 +307,11 @@ export default function Admin() {
               <form onSubmit={handleHistorySubmit} className="space-y-6 mb-12">
                 <div>
                   <label className="block text-sm font-medium text-stone-700 mb-2">Titre</label>
-                  <input type="text" required value={historyForm.title} onChange={e => setHistoryForm({...historyForm, title: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
+                  <input type="text" required value={historyForm.title} onChange={e => setHistoryForm({ ...historyForm, title: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-stone-700 mb-2">Contenu</label>
-                  <textarea required rows={6} value={historyForm.content} onChange={e => setHistoryForm({...historyForm, content: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
+                  <textarea required rows={6} value={historyForm.content} onChange={e => setHistoryForm({ ...historyForm, content: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
                 </div>
                 <div className="grid grid-cols-2 gap-6">
                   <div>
@@ -529,7 +392,7 @@ export default function Admin() {
                 <hr className="border-stone-200" />
                 <div>
                   <label className="block text-sm font-medium text-stone-700 mb-2">Texte "Qui suis-je"</label>
-                  <textarea rows={8} value={settingsForm.about_text} onChange={e => setSettingsForm({...settingsForm, about_text: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
+                  <textarea rows={8} value={settingsForm.about_text} onChange={e => setSettingsForm({ ...settingsForm, about_text: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-stone-700 mb-2">Image "Qui suis-je"</label>

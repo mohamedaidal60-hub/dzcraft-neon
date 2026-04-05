@@ -18,7 +18,7 @@ import Admin from './pages/Admin';
 import FittingRoom from './pages/FittingRoom';
 import Checkout from './pages/Checkout';
 
-import Selection from './pages/Selection';
+// import Selection from './pages/Selection';
 
 export default function App() {
   const setSettings = useStore(state => state.setSettings);
@@ -64,7 +64,7 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/bienvenue" element={<Landing />} />
-        <Route path="/selection" element={<Selection />} />
+        {/* <Route path="/selection" element={<Selection />} /> */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="collection/:category" element={<Collection />} />
