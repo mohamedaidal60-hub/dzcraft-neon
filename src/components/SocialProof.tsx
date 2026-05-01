@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Eye, Heart } from 'lucide-react';
 import { useStore } from '../store';
 
-const firstNames = ['Sarah', 'Amine', 'Yanis', 'Lina', 'Inès', 'Mehdi', 'Sofia', 'Rayane', 'Kenza', 'Walid', 'Nour'];
-const cities = ['Paris', 'Lyon', 'Marseille', 'Alger', 'Oran', 'Toulouse', 'Lille', 'Bordeaux', 'Strasbourg', 'Nantes'];
+const firstNames = ['Marie', 'Thomas', 'Léa', 'Nicolas', 'Camille', 'Julien', 'Emma', 'Pierre', 'Chloé', 'Maxime', 'Julie', 'Antoine', 'Alice', 'Lucas'];
+const cities = ['Paris', 'Lyon', 'Marseille', 'Toulouse', 'Lille', 'Bordeaux', 'Strasbourg', 'Nantes', 'Nice', 'Montpellier', 'Rennes', 'Grenoble', 'Reims', 'Toulon'];
 const actions = [
   { text: 'vient d\'acheter', icon: ShoppingBag, color: 'text-emerald-600', bg: 'bg-emerald-100' },
   { text: 'a ajouté à son panier', icon: ShoppingBag, color: 'text-emerald-600', bg: 'bg-emerald-100' },
