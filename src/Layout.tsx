@@ -176,8 +176,8 @@ export default function Layout() {
               <ul className="space-y-4 text-sm">
                 <li><Link to="/faq" className="hover:text-emerald-400 transition-colors flex items-center"><span className="mr-2">›</span> FAQ - Questions Fréquentes</Link></li>
                 <li><Link to="/livraison" className="hover:text-emerald-400 transition-colors flex items-center"><span className="mr-2">›</span> Politique de Livraison</Link></li>
-                <li><Link to="/retours" className="hover:text-emerald-400 transition-colors flex items-center"><span className="mr-2">›</span> Retours et Remboursements</Link></li>
-                <li><Link to="/cgv" className="hover:text-emerald-400 transition-colors flex items-center"><span className="mr-2">›</span> Conditions Générales (CGV)</Link></li>
+                <li><Link to="/politique-de-confidentialite" className="hover:text-emerald-400 transition-colors flex items-center"><span className="mr-2">›</span> Politique de Confidentialité</Link></li>
+                <li><Link to="/cgu" className="hover:text-emerald-400 transition-colors flex items-center"><span className="mr-2">›</span> Conditions Générales (CGU)</Link></li>
               </ul>
             </div>
             

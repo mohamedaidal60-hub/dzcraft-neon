@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useStore } from '../store';
-import { ShieldCheck, Truck, Clock, CreditCard, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, Truck, Clock, CreditCard, Sparkles, CheckCircle2, MapPin } from 'lucide-react';
+import MondialRelayPicker from '../components/MondialRelayPicker';
 
 export default function Checkout() {
   const { cart, clearCart, settings } = useStore();
@@ -13,6 +14,9 @@ export default function Checkout() {
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [deliveryMethod, setDeliveryMethod] = useState<'home' | 'relay'>('home');
+  const [selectedRelay, setSelectedRelay] = useState<any>(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -47,9 +51,11 @@ export default function Checkout() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           total_amount: total,
-          shipping_address: address || 'N/A',
-          shipping_city: city || 'N/A',
-          shipping_postal_code: '00000',
+          shipping_address: deliveryMethod === 'relay' ? selectedRelay.Adresse1 : (address || 'N/A'),
+          shipping_city: deliveryMethod === 'relay' ? selectedRelay.Ville : (city || 'N/A'),
+          shipping_postal_code: deliveryMethod === 'relay' ? selectedRelay.CP : (postalCode || '00000'),
+          delivery_method: deliveryMethod,
+          relay_id: deliveryMethod === 'relay' ? selectedRelay.ID : null,
           items: cart 
         })
       });
@@ -148,30 +154,82 @@ export default function Checkout() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-stone-700 mb-2">Adresse de livraison</label>
-                      <input 
-                        type="text" 
-                        required
-                        value={address}
-                        onChange={e => setAddress(e.target.value)}
-                        className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
-                        placeholder="Numéro et nom de rue, quartier..."
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-stone-700 mb-2">Wilaya / Ville</label>
-                      <input 
-                        type="text" 
-                        required
-                        value={city}
-                        onChange={e => setCity(e.target.value)}
-                        className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
-                        placeholder="Alger, Oran, Constantine..."
-                      />
-                    </div>
+                  <div className="bg-stone-100 p-1 rounded-2xl flex mb-8">
+                    <button 
+                      type="button"
+                      onClick={() => setDeliveryMethod('home')}
+                      className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${deliveryMethod === 'home' ? 'bg-white shadow-sm text-stone-900' : 'text-stone-500'}`}
+                    >
+                      Livraison à domicile
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setDeliveryMethod('relay')}
+                      className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${deliveryMethod === 'relay' ? 'bg-white shadow-sm text-stone-900' : 'text-stone-500'}`}
+                    >
+                      Point Relais
+                    </button>
                   </div>
+
+                  {deliveryMethod === 'home' ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Adresse de livraison</label>
+                        <input 
+                          type="text" 
+                          required
+                          value={address}
+                          onChange={e => setAddress(e.target.value)}
+                          className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                          placeholder="Numéro et nom de rue, quartier..."
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Wilaya / Ville</label>
+                        <input 
+                          type="text" 
+                          required
+                          value={city}
+                          onChange={e => setCity(e.target.value)}
+                          className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                          placeholder="Alger, Oran..."
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Code Postal</label>
+                        <input 
+                          type="text" 
+                          required
+                          value={postalCode}
+                          onChange={e => setPostalCode(e.target.value)}
+                          className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                          placeholder="Ex: 75001"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Code Postal pour la recherche</label>
+                        <input 
+                          type="text" 
+                          value={postalCode}
+                          onChange={e => setPostalCode(e.target.value)}
+                          className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all mb-4"
+                          placeholder="Ex: 75001"
+                        />
+                        <MondialRelayPicker 
+                          zipCode={postalCode} 
+                          onSelect={(relay) => setSelectedRelay(relay)} 
+                        />
+                      </div>
+                      {selectedRelay && (
+                        <div className="text-xs text-stone-500 flex items-center gap-1">
+                          <MapPin className="w-3 h-3" /> Point sélectionné: {selectedRelay.Nom} ({selectedRelay.ID})
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Payment Reassurance */}
                   <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 flex items-start gap-4">

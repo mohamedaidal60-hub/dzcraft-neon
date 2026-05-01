@@ -17,6 +17,8 @@ import Login from './pages/Login';
 import Admin from './pages/Admin';
 import FittingRoom from './pages/FittingRoom';
 import Checkout from './pages/Checkout';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 // import Selection from './pages/Selection';
 
@@ -75,6 +77,8 @@ export default function App() {
           <Route path="login" element={<Login />} />
           <Route path="admin" element={<Admin />} />
           <Route path="checkout" element={<Checkout />} />
+          <Route path="politique-de-confidentialite" element={<PrivacyPolicy />} />
+          <Route path="cgu" element={<TermsOfService />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

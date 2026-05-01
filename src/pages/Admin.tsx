@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
 import { motion } from 'motion/react';
-import { Plus, Package, LogOut, Settings, Users, BookOpen, Trash2, Upload, Image as ImageIcon } from 'lucide-react';
+import { Plus, Package, LogOut, Settings, Users, BookOpen, Trash2, Upload, Image as ImageIcon, ShoppingCart } from 'lucide-react';
 
 export default function Admin() {
   const user = useStore(state => state.user);
@@ -14,6 +14,7 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState('products');
   const [categories, setCategories] = useState([]);
   const [clients, setClients] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [historyPosts, setHistoryPosts] = useState([]);
   const [message, setMessage] = useState('');
 
@@ -53,9 +54,10 @@ export default function Admin() {
   }, [user, navigate, settings]);
 
   const fetchData = async () => {
-    const [catRes, cliRes, histRes] = await Promise.all([
+    const [catRes, cliRes, ordRes, histRes] = await Promise.all([
       fetch('/api/categories'),
       fetch('/api/admin/clients'),
+      fetch('/api/admin/orders'),
       fetch('/api/history')
     ]);
 
@@ -66,6 +68,7 @@ export default function Admin() {
     }
 
     setClients(await cliRes.json());
+    setOrders(await ordRes.json());
     setHistoryPosts(await histRes.json());
   };
 
@@ -258,6 +261,9 @@ export default function Admin() {
           <button onClick={() => setActiveTab('clients')} className={`w-full flex items-center px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'clients' ? 'bg-stone-900 text-white' : 'text-stone-600 hover:bg-stone-100'}`}>
             <Users className="w-5 h-5 mr-3" /> Clients
           </button>
+          <button onClick={() => setActiveTab('orders')} className={`w-full flex items-center px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'orders' ? 'bg-stone-900 text-white' : 'text-stone-600 hover:bg-stone-100'}`}>
+            <ShoppingCart className="w-5 h-5 mr-3" /> Commandes
+          </button>
           <button onClick={() => setActiveTab('settings')} className={`w-full flex items-center px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'settings' ? 'bg-stone-900 text-white' : 'text-stone-600 hover:bg-stone-100'}`}>
             <Settings className="w-5 h-5 mr-3" /> Paramètres
           </button>
@@ -375,6 +381,52 @@ export default function Admin() {
             </motion.div>
           )}
 
+          {activeTab === 'orders' && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <h2 className="text-2xl font-serif mb-6">Gestion des commandes</h2>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-stone-200 text-sm text-stone-500">
+                      <th className="py-4 font-medium">ID</th>
+                      <th className="py-4 font-medium">Client</th>
+                      <th className="py-4 font-medium">Total</th>
+                      <th className="py-4 font-medium">Livraison</th>
+                      <th className="py-4 font-medium">Date</th>
+                      <th className="py-4 font-medium">Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orders.map((order: any) => (
+                      <tr key={order.id} className="border-b border-stone-100 text-sm">
+                        <td className="py-4 font-mono text-xs">#{order.id.toString().slice(0, 8)}</td>
+                        <td className="py-4">
+                          <p className="font-medium">{order.first_name} {order.last_name}</p>
+                          <p className="text-xs text-stone-500">{order.email}</p>
+                        </td>
+                        <td className="py-4 font-bold text-emerald-600">{order.total_amount} €</td>
+                        <td className="py-4">
+                          <div className="flex flex-col">
+                            <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded-full w-fit mb-1 ${order.delivery_method === 'relay' ? 'bg-blue-100 text-blue-700' : 'bg-orange-100 text-orange-700'}`}>
+                              {order.delivery_method === 'relay' ? 'Point Relais' : 'Domicile'}
+                            </span>
+                            <span className="text-xs text-stone-600 line-clamp-1">{order.shipping_address}</span>
+                            <span className="text-xs text-stone-400">{order.shipping_postal_code} {order.shipping_city}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 text-stone-500">{new Date(order.created_at).toLocaleDateString()}</td>
+                        <td className="py-4">
+                          <span className="bg-stone-100 text-stone-600 px-3 py-1 rounded-full text-xs font-medium">
+                            {order.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          )}
           {activeTab === 'settings' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2 className="text-2xl font-serif mb-6">Paramètres du site</h2>
