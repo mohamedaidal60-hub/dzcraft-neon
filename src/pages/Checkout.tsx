@@ -45,23 +45,39 @@ export default function Checkout() {
         body: JSON.stringify({ name, email, phone })
       });
       
+      const orderData = { 
+        total_amount: total,
+        shipping_address: deliveryMethod === 'relay' ? selectedRelay.Adresse1 : (address || 'N/A'),
+        shipping_city: deliveryMethod === 'relay' ? selectedRelay.Ville : (city || 'N/A'),
+        shipping_postal_code: deliveryMethod === 'relay' ? selectedRelay.CP : (postalCode || '00000'),
+        delivery_method: deliveryMethod,
+        relay_id: deliveryMethod === 'relay' ? selectedRelay.ID : null,
+        items: cart 
+      };
+
       // Also register as a real order if we want it to be in Admin > Orders
       await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          total_amount: total,
-          shipping_address: deliveryMethod === 'relay' ? selectedRelay.Adresse1 : (address || 'N/A'),
-          shipping_city: deliveryMethod === 'relay' ? selectedRelay.Ville : (city || 'N/A'),
-          shipping_postal_code: deliveryMethod === 'relay' ? selectedRelay.CP : (postalCode || '00000'),
-          delivery_method: deliveryMethod,
-          relay_id: deliveryMethod === 'relay' ? selectedRelay.ID : null,
-          items: cart 
-        })
+        body: JSON.stringify(orderData)
       });
+
+      // Prepare WhatsApp message
+      const itemsList = cart.map(item => `- ${item.name} (x${item.quantity}) - ${item.price}€`).join('\n');
+      const deliveryInfo = deliveryMethod === 'relay' 
+        ? `Point Relais: ${selectedRelay.Nom} (${selectedRelay.ID})\nAdresse: ${selectedRelay.Adresse1}, ${selectedRelay.CP} ${selectedRelay.Ville}`
+        : `Domicile: ${address}, ${postalCode} ${city}`;
+      
+      const whatsappMessage = `Nouvelle commande sur DZCRAFTDESIGN !\n\nClient: ${name}\nEmail: ${email}\nTel: ${phone}\n\nProduits:\n${itemsList}\n\nMode de livraison: ${deliveryMethod === 'relay' ? 'POINT RELAIS' : 'DOMICILE'}\n${deliveryInfo}\n\nTOTAL: ${total.toFixed(2)}€`;
+      
+      const encodedMessage = encodeURIComponent(whatsappMessage);
+      const whatsappUrl = `https://wa.me/33767099115?text=${encodedMessage}`;
 
       setSubmitted(true);
       clearCart();
+
+      // Open WhatsApp in a new tab
+      window.open(whatsappUrl, '_blank');
     } catch (error) {
       console.error('Error submitting form', error);
     } finally {

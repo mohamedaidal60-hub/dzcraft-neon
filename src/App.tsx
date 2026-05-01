@@ -19,6 +19,8 @@ import FittingRoom from './pages/FittingRoom';
 import Checkout from './pages/Checkout';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import FAQ from './pages/FAQ';
+import ShippingPolicy from './pages/ShippingPolicy';
 
 // import Selection from './pages/Selection';
 
@@ -79,6 +81,8 @@ export default function App() {
           <Route path="checkout" element={<Checkout />} />
           <Route path="politique-de-confidentialite" element={<PrivacyPolicy />} />
           <Route path="cgu" element={<TermsOfService />} />
+          <Route path="faq" element={<FAQ />} />
+          <Route path="livraison" element={<ShippingPolicy />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
