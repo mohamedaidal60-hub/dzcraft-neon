@@ -222,12 +222,14 @@ export default function Layout() {
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="fixed inset-y-0 left-0 w-4/5 max-w-sm bg-white z-50 shadow-2xl flex flex-col"
             >
-              <div className="p-4 border-b border-stone-100 flex justify-between items-center">
-                <Logo />
-                <button onClick={() => setIsMenuOpen(false)} className="p-2 hover:bg-stone-100 rounded-full">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+               <div className="p-4 border-b border-stone-100 flex justify-between items-center">
+                 <div className="scale-75 origin-left">
+                   <Logo url={settings.logo_url} />
+                 </div>
+                 <button onClick={() => setIsMenuOpen(false)} className="p-2 hover:bg-stone-100 rounded-full">
+                   <X className="w-5 h-5" />
+                 </button>
+               </div>
               <div className="p-4 flex-grow overflow-y-auto">
                 <div className="space-y-1">
                   <div className="font-medium text-stone-400 uppercase text-xs tracking-wider mb-2 mt-4">Collections</div>
