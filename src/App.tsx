@@ -14,6 +14,7 @@ import Product from './pages/Product';
 import About from './pages/About';
 import History from './pages/History';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Admin from './pages/Admin';
 import FittingRoom from './pages/FittingRoom';
 import Checkout from './pages/Checkout';
@@ -78,6 +79,7 @@ export default function App() {
           <Route path="le-saviez-vous" element={<History />} />
           <Route path="fitting-room" element={<FittingRoom />} />
           <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
           <Route path="admin" element={<Admin />} />
           <Route path="checkout" element={<Checkout />} />
           <Route path="politique-de-confidentialite" element={<PrivacyPolicy />} />

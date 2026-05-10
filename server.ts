@@ -4,166 +4,89 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
 import fs from 'fs';
-import { createClient } from '@supabase/supabase-js';
+import pkg from 'pg';
+const { Pool } = pkg;
+import 'dotenv/config';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Initialize Supabase
-const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-let supabase: any = null;
-let initError = null;
-
-if (supabaseUrl && supabaseServiceKey) {
-  try {
-    const cleanUrl = supabaseUrl.trim().replace(/\/$/, '');
-    const hostname = new URL(cleanUrl).hostname;
-    console.log('--- DEBUG SUPABASE ---');
-    console.log('URL complète:', cleanUrl);
-    console.log('Hostname extrait:', hostname);
-    console.log('----------------------');
-    supabase = createClient(cleanUrl, supabaseServiceKey);
-    console.log('Supabase client initialized successfully');
-  } catch (err: any) {
-    initError = err.message;
-    console.error('Failed to initialize Supabase:', err.message);
+// Initialize Neon Postgres Pool
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
   }
-} else {
-  console.warn('Supabase credentials missing: SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
-}
+});
 
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+});
 
 async function startServer() {
   const app = express();
   const PORT = 3000;
 
-  app.use(express.json());
+  app.use(express.json({ limit: '10mb' }));
 
   // Health check
   app.get('/api/health', async (req, res) => {
-    let storageError = null;
-    let storageStatus = 'unknown';
-    
-    if (supabase) {
-      try {
-        const { data, error } = await supabase.storage.listBuckets();
-        if (error) throw error;
-        storageStatus = 'ok';
-        storageStatus += ` (Buckets: ${data.map((b: any) => b.name).join(', ')})`;
-      } catch (err: any) {
-        storageStatus = 'error';
-        storageError = err.message;
-      }
+    try {
+      const client = await pool.connect();
+      const dbRes = await client.query('SELECT NOW()');
+      client.release();
+      res.json({
+        status: 'ok',
+        database: 'neon_postgres',
+        time: dbRes.rows[0].now
+      });
+    } catch (err: any) {
+      res.status(500).json({ status: 'error', message: err.message });
     }
-
-    res.json({
-      status: 'ok',
-      database: 'supabase',
-      initialized: !!supabase,
-      storage: storageStatus,
-      storageError: storageError,
-      error: initError,
-      config: {
-        supabaseUrl: !!supabaseUrl,
-        supabaseServiceKey: !!supabaseServiceKey
-      }
-    });
   });
 
-  // Upload endpoint (using Supabase Storage)
+  // Upload endpoint (Store as Base64 for maximum reliability on Neon)
   app.post('/api/upload', upload.single('file'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
-
-    if (!supabase) {
-      return res.status(503).json({ success: false, message: 'Supabase not initialized' });
-    }
-
     try {
-      const filename = `${Date.now()}-${req.file.originalname}`;
-      const { data, error } = await supabase.storage
-        .from('uploads')
-        .upload(filename, req.file.buffer, {
-          contentType: req.file.mimetype,
-          upsert: true
-        });
-
-      if (error) {
-        console.error('Supabase storage error:', error);
-        throw error;
-      }
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('uploads')
-        .getPublicUrl(filename);
-
-      res.json({ success: true, url: publicUrl });
+      const b64 = req.file.buffer.toString('base64');
+      const url = `data:${req.file.mimetype};base64,${b64}`;
+      res.json({ success: true, url });
     } catch (error: any) {
-      console.error('Final upload catch error:', error);
       res.status(500).json({ success: false, error: error.message });
     }
   });
 
-  // API Routes
+  // Auth
   app.post('/api/auth/login', async (req, res) => {
     let { phone, password, email } = req.body;
-
-    phone = phone?.trim();
-    password = password?.trim();
-    email = email?.trim();
-
-    if (!supabase) {
-      return res.status(503).json({
-        success: false,
-        message: 'Base de données non initialisée. Vérifiez vos secrets Supabase.',
-        error: initError
-      });
-    }
-
     try {
-      console.log('Tentative de requête Supabase pour:', { email, phone });
-      let query = supabase.from('users').select('*').eq('password', password);
-
-      if (email) {
-        query = query.eq('email', email);
-      } else {
-        query = query.eq('phone', phone);
-      }
-
-      const { data, error } = await query.single();
-
-      if (error) {
-        console.error('Erreur Supabase lors du login:', error);
-        return res.status(401).json({
-          success: false,
-          message: 'Identifiants incorrects ou erreur de base de données',
-          details: error.message
-        });
-      }
-
-      if (data) {
-        console.log('Connexion réussie pour:', data.phone || data.email);
+      const query = email 
+        ? 'SELECT * FROM users WHERE email = $1 AND password = $2' 
+        : 'SELECT * FROM users WHERE phone = $1 AND password = $2';
+      const values = email ? [email, password] : [phone, password];
+      const dbRes = await pool.query(query, values);
+      
+      if (dbRes.rows.length > 0) {
+        const user = dbRes.rows[0];
         res.json({
           success: true,
           user: {
-            id: data.id,
-            phone: data.phone,
-            email: data.email,
-            role: data.role,
-            first_name: data.first_name,
-            last_name: data.last_name
+            id: user.id,
+            phone: user.phone,
+            email: user.email,
+            role: user.role,
+            first_name: user.first_name,
+            last_name: user.last_name
           }
         });
       } else {
-        console.warn('Échec de connexion: Utilisateur non trouvé');
         res.status(401).json({ success: false, message: 'Identifiants incorrects' });
       }
     } catch (error: any) {
-      console.error('Exception lors du login:', error);
       res.status(500).json({ success: false, error: error.message });
     }
   });
@@ -171,22 +94,21 @@ async function startServer() {
   app.post('/api/auth/register', async (req, res) => {
     const { email, phone, password, first_name, last_name, address, city, postal_code } = req.body;
     try {
-      const { data, error } = await supabase.from('users').insert([{
-        email, phone, password, role: 'user', first_name, last_name, address, city, postal_code
-      }]).select().single();
-
-      if (error) throw error;
-      res.json({ success: true, user: data });
+      const dbRes = await pool.query(
+        'INSERT INTO users (email, phone, password, role, first_name, last_name, address, city, postal_code) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
+        [email, phone, password, 'user', first_name, last_name, address, city, postal_code]
+      );
+      res.json({ success: true, user: dbRes.rows[0] });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
     }
   });
 
+  // Shop Data
   app.get('/api/categories', async (req, res) => {
     try {
-      const { data, error } = await supabase.from('categories').select('*');
-      if (error) throw error;
-      res.json(data);
+      const dbRes = await pool.query('SELECT * FROM categories');
+      res.json(dbRes.rows);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -195,28 +117,18 @@ async function startServer() {
   app.get('/api/products', async (req, res) => {
     try {
       const { category } = req.query;
-      let query = supabase.from('products').select(`
-        *,
-        categories (
-          name,
-          slug
-        )
-      `);
-
-      const { data, error } = await query;
-      if (error) throw error;
-
-      let products = data.map((p: any) => ({
-        ...p,
-        category_name: p.categories?.name,
-        category_slug: p.categories?.slug
-      }));
-
+      let query = `
+        SELECT p.*, c.name as category_name, c.slug as category_slug 
+        FROM products p 
+        LEFT JOIN categories c ON p.category_id = c.id
+      `;
+      let values: any[] = [];
       if (category) {
-        products = products.filter((p: any) => p.category_slug === category);
+        query += ' WHERE c.slug = $1';
+        values = [category];
       }
-
-      res.json(products);
+      const dbRes = await pool.query(query, values);
+      res.json(dbRes.rows);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -224,28 +136,16 @@ async function startServer() {
 
   app.get('/api/products/:id', async (req, res) => {
     try {
-      const { data: product, error: pError } = await supabase
-        .from('products')
-        .select(`
-          *,
-          categories (name)
-        `)
-        .eq('id', req.params.id)
-        .single();
+      const productRes = await pool.query(
+        'SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.id = $1',
+        [req.params.id]
+      );
+      if (productRes.rows.length === 0) return res.status(404).json({ error: 'Not found' });
 
-      if (pError) throw pError;
-
-      const { data: variants, error: vError } = await supabase
-        .from('variants')
-        .select('*')
-        .eq('product_id', req.params.id);
-
-      if (vError) throw vError;
-
+      const variantsRes = await pool.query('SELECT * FROM variants WHERE product_id = $1', [req.params.id]);
       res.json({
-        ...product,
-        category_name: product.categories?.name,
-        variants
+        ...productRes.rows[0],
+        variants: variantsRes.rows
       });
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -254,13 +154,8 @@ async function startServer() {
 
   app.get('/api/history', async (req, res) => {
     try {
-      const { data, error } = await supabase
-        .from('history_posts')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      res.json(data);
+      const dbRes = await pool.query('SELECT * FROM history_posts ORDER BY created_at DESC');
+      res.json(dbRes.rows);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
@@ -268,10 +163,8 @@ async function startServer() {
 
   app.get('/api/settings', async (req, res) => {
     try {
-      const { data, error } = await supabase.from('settings').select('*');
-      if (error) throw error;
-
-      const settingsObj = data.reduce((acc: any, item: any) => {
+      const dbRes = await pool.query('SELECT * FROM settings');
+      const settingsObj = dbRes.rows.reduce((acc: any, item: any) => {
         acc[item.key] = item.value;
         return acc;
       }, {});
@@ -281,43 +174,17 @@ async function startServer() {
     }
   });
 
-  app.post('/api/clients', async (req, res) => {
-    const { name, email, phone } = req.body;
-    try {
-      const { data, error } = await supabase.from('clients').insert([{ name, email, phone }]).select().single();
-      if (error) throw error;
-      res.json({ success: true, id: data.id });
-    } catch (error: any) {
-      res.status(500).json({ success: false, error: error.message });
-    }
-  });
-
-  // Admin Routes
+  // Admin
   app.post('/api/admin/products', async (req, res) => {
     const { name, slug, description, price, category_id, image_url } = req.body;
     try {
-      const { data, error } = await supabase.from('products').insert([{
-        name, slug, description, price: parseFloat(price), category_id, image_url
-      }]).select().single();
-
-      if (error) throw error;
-      res.json({ success: true, id: data.id });
+      const dbRes = await pool.query(
+        'INSERT INTO products (name, slug, description, price, category_id, image_url) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+        [name, slug, description, parseFloat(price), parseInt(category_id), image_url]
+      );
+      res.json({ success: true, id: dbRes.rows[0].id });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
-    }
-  });
-
-  app.get('/api/admin/clients', async (req, res) => {
-    try {
-      const { data, error } = await supabase
-        .from('clients')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      res.json(data);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
     }
   });
 
@@ -325,10 +192,10 @@ async function startServer() {
     const settings = req.body;
     try {
       for (const [key, value] of Object.entries(settings)) {
-        const { error } = await supabase
-          .from('settings')
-          .upsert({ key, value: String(value) });
-        if (error) throw error;
+        await pool.query(
+          'INSERT INTO settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
+          [key, String(value)]
+        );
       }
       res.json({ success: true });
     } catch (error: any) {
@@ -339,12 +206,11 @@ async function startServer() {
   app.post('/api/admin/history', async (req, res) => {
     const { title, content, image_url, bg_image_url } = req.body;
     try {
-      const { data, error } = await supabase.from('history_posts').insert([{
-        title, content, image_url, bg_image_url
-      }]).select().single();
-
-      if (error) throw error;
-      res.json({ success: true, id: data.id });
+      const dbRes = await pool.query(
+        'INSERT INTO history_posts (title, content, image_url, bg_image_url) VALUES ($1, $2, $3, $4) RETURNING id',
+        [title, content, image_url, bg_image_url]
+      );
+      res.json({ success: true, id: dbRes.rows[0].id });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
     }
@@ -353,12 +219,10 @@ async function startServer() {
   app.put('/api/admin/history/:id', async (req, res) => {
     const { title, content, image_url, bg_image_url } = req.body;
     try {
-      const { error } = await supabase
-        .from('history_posts')
-        .update({ title, content, image_url, bg_image_url })
-        .eq('id', req.params.id);
-
-      if (error) throw error;
+      await pool.query(
+        'UPDATE history_posts SET title = $1, content = $2, image_url = $3, bg_image_url = $4 WHERE id = $5',
+        [title, content, image_url, bg_image_url, req.params.id]
+      );
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
@@ -367,38 +231,8 @@ async function startServer() {
 
   app.delete('/api/admin/history/:id', async (req, res) => {
     try {
-      const { error } = await supabase.from('history_posts').delete().eq('id', req.params.id);
-      if (error) throw error;
+      await pool.query('DELETE FROM history_posts WHERE id = $1', [req.params.id]);
       res.json({ success: true });
-    } catch (error: any) {
-      res.status(500).json({ success: false, error: error.message });
-    }
-  });
-
-  // Orders
-  app.post('/api/orders', async (req, res) => {
-    const { user_id, total_amount, shipping_address, shipping_city, shipping_postal_code, items } = req.body;
-    try {
-      const { data: order, error: oError } = await supabase.from('orders').insert([{
-        user_id, total_amount, shipping_address, shipping_city, shipping_postal_code,
-        status: 'pending'
-      }]).select().single();
-
-      if (oError) throw oError;
-
-      const orderItems = items.map((item: any) => ({
-        order_id: order.id,
-        product_id: item.id,
-        quantity: item.quantity,
-        price: item.price,
-        size: item.size || null,
-        color: item.color || null
-      }));
-
-      const { error: iError } = await supabase.from('order_items').insert(orderItems);
-      if (iError) throw iError;
-
-      res.json({ success: true, orderId: order.id });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
     }
@@ -406,58 +240,62 @@ async function startServer() {
 
   app.get('/api/admin/orders', async (req, res) => {
     try {
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          users (
-            first_name,
-            last_name,
-            email
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const orders = data.map((o: any) => ({
-        ...o,
-        first_name: o.users?.first_name,
-        last_name: o.users?.last_name,
-        email: o.users?.email
-      }));
-
-      res.json(orders);
+      const dbRes = await pool.query(`
+        SELECT o.*, u.first_name, u.last_name, u.email 
+        FROM orders o 
+        JOIN users u ON o.user_id = u.id 
+        ORDER BY o.created_at DESC
+      `);
+      res.json(dbRes.rows);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   });
 
-  // Vite middleware for development
+  app.post('/api/orders', async (req, res) => {
+    const { user_id, total_amount, shipping_address, shipping_city, shipping_postal_code, items } = req.body;
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const orderRes = await client.query(
+        'INSERT INTO orders (user_id, total_amount, shipping_address, shipping_city, shipping_postal_code, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+        [user_id, total_amount, shipping_address, shipping_city, shipping_postal_code, 'pending']
+      );
+      const orderId = orderRes.rows[0].id;
+      
+      for (const item of items) {
+        await client.query(
+          'INSERT INTO order_items (order_id, product_id, quantity, price, size, color) VALUES ($1, $2, $3, $4, $5, $6)',
+          [orderId, item.id, item.quantity, item.price, item.size || null, item.color || null]
+        );
+      }
+      await client.query('COMMIT');
+      res.json({ success: true, orderId });
+    } catch (error: any) {
+      await client.query('ROLLBACK');
+      res.status(500).json({ success: false, error: error.message });
+    } finally {
+      client.release();
+    }
+  });
+
+  // Static files and Vite
   const isProd = process.env.NODE_ENV === 'production';
   if (!isProd) {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: 'spa',
-    });
+    const vite = await createViteServer({ server: { middlewareMode: true }, appType: 'spa' });
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(__dirname, 'dist');
     if (fs.existsSync(distPath)) {
       app.use(express.static(distPath));
-      app.get('*', (req, res) => {
-        res.sendFile(path.join(distPath, 'index.html'));
-      });
+      app.get('*', (req, res) => res.sendFile(path.join(distPath, 'index.html')));
     }
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
+  app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT} (Neon/Postgres mode)`));
 }
 
 startServer().catch(err => {
   console.error('Failed to start server:', err);
   process.exit(1);
 });
-

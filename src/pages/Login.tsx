@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useStore } from '../store';
 import { motion } from 'motion/react';
 
@@ -58,7 +58,7 @@ export default function Login() {
             Connexion
           </h2>
           <p className="mt-2 text-center text-sm text-stone-600">
-            Accès réservé
+            Nouveau client ? <Link to="/register" className="text-emerald-600 font-medium hover:text-emerald-700">Créer un compte</Link>
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
