@@ -16,6 +16,7 @@ const WILAYAS = [
 ];
 
 export default function Home() {
+  const { settings } = useStore();
   const [featuredProducts, setFeaturedProducts] = useState([]);
   
   // Local filters for the UI
@@ -64,19 +65,18 @@ export default function Home() {
       <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-stone-900">
           <img 
-            src="https://images.unsplash.com/photo-1512412023212-f09990aa80c8?auto=format&fit=crop&q=80" 
+            src={settings.hero_image_url || "https://images.unsplash.com/photo-1512412023212-f09990aa80c8?auto=format&fit=crop&q=80"} 
             alt="Algerian Tradition" 
-            className="w-full h-full object-cover opacity-60 mix-blend-overlay"
+            className="w-full h-full object-cover opacity-60"
             referrerPolicy="no-referrer"
           />
-          {/* Logo en filigrane */}
+          {/* Logo en filigrane dynamique */}
           <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-            <svg width="600" height="600" viewBox="0 0 100 100" fill="white" xmlns="http://www.w3.org/2000/svg">
-              <path d="M50 10 L30 80 L20 80 L40 10 Z" />
-              <path d="M50 10 L70 80 L80 80 L60 10 Z" />
-              <path d="M48 20 L52 20 L52 80 L48 80 Z" />
-              <path d="M10 80 L90 80 L90 85 L10 85 Z" />
-            </svg>
+            <img 
+              src={settings.logo_url} 
+              alt="Watermark" 
+              className="w-[500px] h-[500px] object-contain grayscale brightness-0 invert" 
+            />
           </div>
         </div>
         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">

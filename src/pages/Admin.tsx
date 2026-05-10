@@ -22,9 +22,9 @@ export default function Admin() {
     name: '', slug: '', description: '', price: '', category_id: '', image_url: ''
   });
 
-  const [settingsForm, setSettingsForm] = useState({
-    logo_url: '', watermark_url: '', about_text: '', about_image_url: ''
-  });
+   const [settingsForm, setSettingsForm] = useState({
+     logo_url: '', watermark_url: '', about_text: '', about_image_url: '', hero_image_url: ''
+   });
 
   const [historyForm, setHistoryForm] = useState({
     title: '', content: '', image_url: '', bg_image_url: ''
@@ -34,6 +34,7 @@ export default function Admin() {
   const [historyFile, setHistoryFile] = useState<File | null>(null);
   const [historyBgFile, setHistoryBgFile] = useState<File | null>(null);
   const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [heroFile, setHeroFile] = useState<File | null>(null);
   const [watermarkFile, setWatermarkFile] = useState<File | null>(null);
   const [aboutImageFile, setAboutImageFile] = useState<File | null>(null);
 
@@ -49,7 +50,8 @@ export default function Admin() {
         logo_url: settings.logo_url || '',
         watermark_url: settings.watermark_url || '',
         about_text: settings.about_text || '',
-        about_image_url: settings.about_image_url || ''
+        about_image_url: settings.about_image_url || '',
+        hero_image_url: settings.hero_image_url || ''
       });
     }
   }, [user, navigate, settings]);
@@ -146,6 +148,10 @@ export default function Admin() {
       if (logoFile) {
         const url = await uploadImage(logoFile);
         if (url) newSettings.logo_url = url;
+      }
+      if (heroFile) {
+        const url = await uploadImage(heroFile);
+        if (url) newSettings.hero_image_url = url;
       }
       if (watermarkFile) {
         const url = await uploadImage(watermarkFile);
@@ -471,6 +477,11 @@ export default function Admin() {
                   <label className="block text-sm font-medium text-stone-700 mb-2">Filigrane (Watermark)</label>
                   <input type="file" accept="image/*" onChange={e => setWatermarkFile(e.target.files?.[0] || null)} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500 bg-white" />
                   {settingsForm.watermark_url && !watermarkFile && <p className="text-xs text-stone-500 mt-2">Image actuelle : {settingsForm.watermark_url}</p>}
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Image de l'Hero (Bannière)</label>
+                  <input type="file" accept="image/*" onChange={e => setHeroFile(e.target.files?.[0] || null)} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500 bg-white" />
+                  {settingsForm.hero_image_url && !heroFile && <p className="text-xs text-stone-500 mt-2">Image actuelle : {settingsForm.hero_image_url}</p>}
                 </div>
                 <hr className="border-stone-200" />
                 <div>
