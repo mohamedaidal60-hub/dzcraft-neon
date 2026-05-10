@@ -182,13 +182,10 @@ export default function Collection() {
         </div>
       ) : (
         <div className="text-center py-24 px-6 bg-white rounded-[3rem] border border-stone-100 shadow-sm max-w-2xl mx-auto">
-          <h3 className="text-2xl font-serif text-stone-900 mb-4">Le client est roi</h3>
+          <h3 className="text-2xl font-serif text-stone-900 mb-4">Aucun produit</h3>
           <p className="text-stone-600 text-lg mb-8 leading-relaxed">
-            Nous n'imposons aucune collection figée. Chez DZCRAFTDESIGN, nous travaillons selon vos demandes et vos racines.
+            Aucun produit ne correspond à vos critères pour le moment.
           </p>
-          <Link to="/bienvenue" className="inline-flex items-center gap-2 px-8 py-4 bg-stone-900 text-white rounded-full font-medium hover:bg-emerald-600 transition-all">
-            Commander mon modèle personnalisé <ArrowRight className="w-4 h-4" />
-          </Link>
         </div>
       )}
     </div>

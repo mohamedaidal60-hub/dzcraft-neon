@@ -7,7 +7,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useStore } from './store';
 import Layout from './Layout';
-import Landing from './pages/Landing';
+
 import Home from './pages/Home';
 import Collection from './pages/Collection';
 import Product from './pages/Product';
@@ -67,7 +67,7 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/bienvenue" element={<Landing />} />
+
         {/* <Route path="/selection" element={<Selection />} /> */}
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />

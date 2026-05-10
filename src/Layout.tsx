@@ -82,9 +82,7 @@ export default function Layout() {
               <Link to="/fitting-room" className="text-sm font-medium text-emerald-600 hover:text-emerald-700 py-8 flex items-center gap-1">
                 <Sparkles className="w-4 h-4" /> Essayage Virtuel
               </Link>
-              <Link to="/bienvenue" className="text-sm font-medium text-stone-900 border border-stone-200 px-4 py-2 rounded-full hover:bg-stone-50 transition-colors my-auto ml-4">
-                Commander un Modèle
-              </Link>
+
             </nav>
 
             <div className="flex items-center space-x-4">
@@ -240,9 +238,7 @@ export default function Layout() {
                   <Link onClick={() => setIsMenuOpen(false)} to="/fitting-room" className="block py-3 text-lg font-medium border-b border-stone-50 text-emerald-600 flex items-center gap-2">
                     <Sparkles className="w-5 h-5" /> Essayage Virtuel
                   </Link>
-                  <Link onClick={() => setIsMenuOpen(false)} to="/bienvenue" className="block py-4 px-4 bg-stone-900 text-white text-center rounded-xl font-medium mt-6">
-                    Commander un Modèle
-                  </Link>
+
                 </div>
               </div>
             </motion.div>

@@ -321,9 +321,9 @@ export default function Checkout() {
               <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Truck className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-serif mb-3">Livraison sur 58 Wilayas</h3>
+              <h3 className="text-xl font-serif mb-3">Livraison Algérie & France</h3>
               <p className="text-stone-500 text-sm leading-relaxed">
-                Où que vous soyez en Algérie, nous expédions nos produits jusqu'à votre porte avec nos partenaires logistiques fiables.
+                Où que vous soyez en Algérie, nous expédions jusqu'à votre porte, et partout en France via Mondial Relay.
               </p>
             </div>
             

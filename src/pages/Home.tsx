@@ -75,9 +75,9 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-5xl md:text-7xl font-serif mb-6 tracking-tight"
+            className="text-5xl md:text-7xl font-serif mb-6 tracking-tight uppercase"
           >
-            L'Élégance Algérienne
+            LA PREMIÈRE BOUTIQUE CADEAU DES ALGÉRIENS
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -85,7 +85,7 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-lg md:text-xl font-light mb-10 text-stone-200"
           >
-            Découvrez nos collections exclusives fabriquées en Algérie. Un savoir-faire unique, une histoire à porter.
+            Des créations inspirées de notre culture et de nos traditions.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -103,7 +103,46 @@ export default function Home() {
         </div>
       </section>
 
-      <CustomizationSection />
+
+
+      {/* Featured Products */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        <div className="flex justify-between items-end mb-12">
+          <div>
+            <h2 className="text-3xl font-serif mb-2 text-stone-900">Nouveautés</h2>
+            <p className="text-stone-500">Découvrez nos créations exclusives</p>
+          </div>
+          <Link to="/collection/adulte" className="text-sm font-medium hover:text-emerald-700 hidden sm:block">
+            Voir tout &rarr;
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {featuredProducts.length > 0 ? featuredProducts.slice(0, 4).map((product: any) => (
+            <Link key={product.id} to={`/product/${product.id}`} className="group">
+              <div className="aspect-[3/4] bg-stone-100 rounded-2xl overflow-hidden mb-4 relative">
+                <img 
+                  src={product.image_url || 'https://picsum.photos/seed/dz/400/600'} 
+                  alt={product.name} 
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+              <h3 className="font-medium text-lg">{product.name}</h3>
+              <p className="text-stone-500 text-sm mb-2">{product.category_name}</p>
+              <p className="font-medium">{parseFloat(product.price).toFixed(2)} €</p>
+            </Link>
+          )) : (
+            Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-[3/4] bg-stone-200 rounded-2xl mb-4"></div>
+                <div className="h-5 bg-stone-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-stone-200 rounded w-1/2 mb-2"></div>
+                <div className="h-5 bg-stone-200 rounded w-1/4"></div>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
 
       {/* Story Teaser */}
       <section className="bg-stone-900 text-white py-24">
