@@ -71,13 +71,15 @@ export default function Home() {
              referrerPolicy="no-referrer"
            />
           {/* Logo en filigrane dynamique */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-            <img 
-              src={settings.logo_url} 
-              alt="Watermark" 
-              className="w-[500px] h-[500px] object-contain grayscale brightness-0 invert" 
-            />
-          </div>
+          {settings.logo_url && (
+            <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+              <img 
+                src={settings.logo_url} 
+                alt="Watermark" 
+                className="w-[500px] h-[500px] object-contain grayscale brightness-0 invert" 
+              />
+            </div>
+          )}
         </div>
         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
           <motion.h1 
@@ -169,8 +171,18 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <img src="https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?auto=format&fit=crop&q=80" alt="Atelier" className="rounded-2xl w-full h-full object-cover" referrerPolicy="no-referrer" />
-            <img src="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&q=80" alt="Textile" className="rounded-2xl w-full h-full object-cover mt-8" referrerPolicy="no-referrer" />
+            <img 
+              src={settings.about_image_url || "https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?auto=format&fit=crop&q=80"} 
+              alt="Histoire 1" 
+              className="rounded-2xl w-full h-full object-cover" 
+              referrerPolicy="no-referrer" 
+            />
+            <img 
+              src={settings.hero_image_url || "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&q=80"} 
+              alt="Histoire 2" 
+              className="rounded-2xl w-full h-full object-cover mt-8" 
+              referrerPolicy="no-referrer" 
+            />
           </div>
         </div>
       </section>
