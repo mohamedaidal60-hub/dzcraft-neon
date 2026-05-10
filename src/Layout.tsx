@@ -6,12 +6,16 @@ import { motion, AnimatePresence } from 'motion/react';
 import WhatsAppButton from './components/WhatsAppButton';
 import SocialProof from './components/SocialProof';
 
-const Logo = ({ url }: { url?: string }) => (
+const Logo = ({ url, variant = 'light' }: { url?: string, variant?: 'light' | 'dark' }) => (
   <div className="flex flex-col items-center">
     {url ? (
-      <img src={url} alt="DZCRAFTDESIGN" className="h-24 md:h-32 object-contain mix-blend-multiply" />
+      <img 
+        src={url} 
+        alt="DZCRAFTDESIGN" 
+        className={`h-24 md:h-32 object-contain ${variant === 'light' ? 'mix-blend-multiply contrast-[1.1] brightness-[1.05]' : 'brightness-0 invert'}`} 
+      />
     ) : (
-      <>
+      <div className={variant === 'dark' ? 'text-white' : 'text-stone-900'}>
         <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M50 10 L30 80 L20 80 L40 10 Z" fill="currentColor" />
           <path d="M50 10 L70 80 L80 80 L60 10 Z" fill="currentColor" />
@@ -19,7 +23,7 @@ const Logo = ({ url }: { url?: string }) => (
           <path d="M10 80 L90 80 L90 85 L10 85 Z" fill="currentColor" />
         </svg>
         <span className="font-serif text-xs tracking-widest mt-1">DZCRAFTDESIGN</span>
-      </>
+      </div>
     )}
   </div>
 );
@@ -147,7 +151,7 @@ export default function Layout() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             <div>
               <div className="text-white mb-6">
-                <Logo url={settings.logo_url} />
+                <Logo url={settings.logo_url} variant="dark" />
               </div>
               <p className="text-sm leading-relaxed mb-6">
                 DZCRAFTDESIGN est le point de rencontre entre l'identité algérienne et la modernité. Nous créons des pièces uniques qui font voyager notre identité.
@@ -288,7 +292,7 @@ export default function Layout() {
                     {cart.map((item, idx) => (
                       <div key={idx} className="flex gap-4">
                         <div className="w-20 h-24 bg-stone-100 rounded-md overflow-hidden flex-shrink-0">
-                          <img src={item.image_url || 'https://picsum.photos/seed/dz/200/300'} alt={item.name} className="w-full h-full object-cover" />
+                          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-grow flex flex-col justify-between">
                           <div>

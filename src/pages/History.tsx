@@ -58,7 +58,7 @@ export default function History() {
             )}
             <div className={`aspect-[4/3] bg-stone-100 rounded-3xl overflow-hidden shadow-2xl relative z-10 ${index % 2 !== 0 ? 'md:order-2' : ''}`}>
               <img 
-                src={post.image_url || `https://picsum.photos/seed/dz_hist_${post.id}/800/600`} 
+                src={post.image_url || 'https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?auto=format&fit=crop&q=80'} 
                 alt={post.title} 
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
