@@ -70,18 +70,8 @@ export default function Home() {
              className="w-full h-full object-cover opacity-70 object-top"
              referrerPolicy="no-referrer"
            />
-          {/* Logo en filigrane dynamique */}
-          {settings.logo_url && (
-            <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-              <img 
-                src={settings.logo_url} 
-                alt="Watermark" 
-                className="w-[500px] h-[500px] object-contain grayscale brightness-0 invert" 
-              />
-            </div>
-          )}
-        </div>
-        <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
+         </div>
+         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
