@@ -9,7 +9,7 @@ import SocialProof from './components/SocialProof';
 const Logo = ({ url }: { url?: string }) => (
   <div className="flex flex-col items-center">
     {url ? (
-      <img src={url} alt="DZCRAFTDESIGN" className="h-24 md:h-32 object-contain" />
+      <img src={url} alt="DZCRAFTDESIGN" className="h-24 md:h-32 object-contain mix-blend-multiply" />
     ) : (
       <>
         <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -115,7 +115,7 @@ export default function Layout() {
             <div className="w-16 h-16 bg-white shadow-sm rounded-full flex items-center justify-center mb-4 text-emerald-600">
               <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" /></svg>
             </div>
-            <h4 className="font-medium font-serif mb-1">Qualité Garantie</h4>
+            <h4 className="font-medium font-serif mb-1">Des détails qui font la différence</h4>
             <p className="text-xs text-stone-500">Fabrication artisanale algérienne.</p>
           </div>
           <div className="flex flex-col items-center">
@@ -136,7 +136,7 @@ export default function Layout() {
             <div className="w-16 h-16 bg-white shadow-sm rounded-full flex items-center justify-center mb-4 text-emerald-600">
               <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg>
             </div>
-            <h4 className="font-medium font-serif mb-1">Livraison Algérie & Europe</h4>
+            <h4 className="font-medium font-serif mb-1">Livraison en Europe</h4>
             <p className="text-xs text-stone-500">Expédition rapide à domicile ou en point relais.</p>
           </div>
         </div>
@@ -150,7 +150,7 @@ export default function Layout() {
                 <Logo url={settings.logo_url} />
               </div>
               <p className="text-sm leading-relaxed mb-6">
-                DZCRAFTDESIGN est le point de rencontre entre l'artisanat traditionnel algérien et la modernité. Nous créons des pièces uniques qui font voyager notre identité.
+                DZCRAFTDESIGN est le point de rencontre entre l'identité algérienne et la modernité. Nous créons des pièces uniques qui font voyager notre identité.
               </p>
               <div className="flex gap-4">
                 {/* Social Icons Mockup */}
