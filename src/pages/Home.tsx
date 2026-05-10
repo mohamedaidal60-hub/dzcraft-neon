@@ -62,12 +62,12 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-       <section className="relative h-[95vh] flex items-center justify-center overflow-hidden">
-         <div className="absolute inset-0 bg-stone-900">
+       <section className="relative h-screen flex items-center justify-center overflow-hidden bg-stone-900">
+         <div className="absolute inset-0">
            <img 
              src={settings.hero_image_url || "https://images.unsplash.com/photo-1512412023212-f09990aa80c8?auto=format&fit=crop&q=80"} 
-             alt="Algerian Tradition" 
-             className="w-full h-full object-cover opacity-60 object-center"
+             alt="Bannière" 
+             className="w-full h-full object-contain opacity-80"
              referrerPolicy="no-referrer"
            />
           {/* Logo en filigrane dynamique */}
