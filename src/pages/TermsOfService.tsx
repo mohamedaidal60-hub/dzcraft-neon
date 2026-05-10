@@ -20,7 +20,7 @@ export default function TermsOfService() {
               <p>SASU</p>
               <p>Siège social : 36 rue Scheffer, 75016 Paris</p>
               <p>RCS Paris : 103 161 014</p>
-              <p>Email : contact@dzcraftdesign.com</p>
+              <p>Email : contact@dzcd.fr</p>
             </div>
             <p className="mt-4 italic">Toute navigation sur le site implique l’acceptation sans réserve des présentes CGU.</p>
           </section>

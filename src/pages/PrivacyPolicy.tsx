@@ -25,7 +25,7 @@ export default function PrivacyPolicy() {
               <p>Société par actions simplifiée (SASU)</p>
               <p>Siège social : 36 rue Scheffer, 75016 Paris</p>
               <p>RCS Paris : 103 161 014</p>
-              <p>Email : contact@dzcraftdesign.com</p>
+              <p>Email : contact@dzcd.fr</p>
             </div>
           </section>
 
@@ -97,7 +97,7 @@ export default function PrivacyPolicy() {
               <li>Droit d’accès, de rectification et de suppression</li>
               <li>Droit d’opposition et à la portabilité</li>
             </ul>
-            <p className="mt-4">Vous pouvez exercer vos droits en contactant : <span className="font-medium">contact@dzcraftdesign.com</span></p>
+            <p className="mt-4">Vous pouvez exercer vos droits en contactant : <span className="font-medium">contact@dzcd.fr</span></p>
           </section>
 
           <section>

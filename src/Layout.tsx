@@ -186,10 +186,14 @@ export default function Layout() {
             <div>
               <h3 className="text-white font-medium mb-6 uppercase text-sm tracking-wider">Contact Direct</h3>
               <ul className="space-y-4 text-sm">
-                <li className="flex items-center gap-3">
-                  <svg className="w-5 h-5 text-emerald-500 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12.073 0C5.405 0 0 5.405 0 12.073c0 2.135.556 4.218 1.613 6.059L.053 23.64c-.112.417.26.81.677.698l5.522-1.48c1.782.966 3.824 1.488 5.821 1.488 6.668 0 12.073-5.405 12.073-12.073C24.147 5.405 18.742 0 12.073 0zm0 22.073c-1.801 0-3.565-.48-5.114-1.39l-.367-.215-3.35.898.914-3.23-.236-.375c-1.002-1.593-1.531-3.44-1.531-5.335 0-5.592 4.548-10.14 10.14-10.14h.001c5.592 0 10.14 4.548 10.14 10.14 0 5.592-4.548 10.14-10.14 10.14h-.001z"/></svg>
-                  <span>+33 7 67 09 91 15</span>
-                </li>
+                 <li className="flex items-center gap-3">
+                   <svg className="w-5 h-5 text-emerald-500 shrink-0" fill="currentColor" viewBox="0 0 24 24"><path d="M12.073 0C5.405 0 0 5.405 0 12.073c0 2.135.556 4.218 1.613 6.059L.053 23.64c-.112.417.26.81.677.698l5.522-1.48c1.782.966 3.824 1.488 5.821 1.488 6.668 0 12.073-5.405 12.073-12.073C24.147 5.405 18.742 0 12.073 0zm0 22.073c-1.801 0-3.565-.48-5.114-1.39l-.367-.215-3.35.898.914-3.23-.236-.375c-1.002-1.593-1.531-3.44-1.531-5.335 0-5.592 4.548-10.14 10.14-10.14h.001c5.592 0 10.14 4.548 10.14 10.14 0 5.592-4.548 10.14-10.14 10.14h-.001z"/></svg>
+                   <span>+33 7 67 09 91 15</span>
+                 </li>
+                 <li className="flex items-center gap-3">
+                   <svg className="w-5 h-5 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                   <span>contact@dzcd.fr</span>
+                 </li>
               </ul>
             </div>
           </div>
