@@ -89,9 +89,14 @@ export default function Admin() {
     try {
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
       const data = await res.json();
+      if (!data.success) {
+        console.error('Upload failed:', data.error || data.message || 'Unknown error');
+        alert('Erreur de téléchargement : ' + (data.error || data.message || 'Vérifiez les réglages serveur'));
+      }
       return data.success ? data.url : null;
     } catch (error) {
       console.error('Upload error:', error);
+      alert('Erreur réseau : impossible de contacter le serveur de téléchargement');
       return null;
     }
   };

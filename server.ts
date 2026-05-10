@@ -43,11 +43,28 @@ async function startServer() {
   app.use(express.json());
 
   // Health check
-  app.get('/api/health', (req, res) => {
+  app.get('/api/health', async (req, res) => {
+    let storageError = null;
+    let storageStatus = 'unknown';
+    
+    if (supabase) {
+      try {
+        const { data, error } = await supabase.storage.listBuckets();
+        if (error) throw error;
+        storageStatus = 'ok';
+        storageStatus += ` (Buckets: ${data.map((b: any) => b.name).join(', ')})`;
+      } catch (err: any) {
+        storageStatus = 'error';
+        storageError = err.message;
+      }
+    }
+
     res.json({
       status: 'ok',
       database: 'supabase',
       initialized: !!supabase,
+      storage: storageStatus,
+      storageError: storageError,
       error: initError,
       config: {
         supabaseUrl: !!supabaseUrl,
@@ -75,7 +92,10 @@ async function startServer() {
           upsert: true
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase storage error:', error);
+        throw error;
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('uploads')
@@ -83,7 +103,7 @@ async function startServer() {
 
       res.json({ success: true, url: publicUrl });
     } catch (error: any) {
-      console.error('Upload error:', error);
+      console.error('Final upload catch error:', error);
       res.status(500).json({ success: false, error: error.message });
     }
   });
