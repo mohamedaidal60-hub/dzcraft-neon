@@ -87,21 +87,26 @@ export default function Admin() {
 
   const uploadImage = async (file: File | null): Promise<string | null> => {
     if (!file) return null;
-    const formData = new FormData();
-    formData.append('file', file);
-    try {
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
-      const data = await res.json();
-      if (!data.success) {
-        console.error('Upload failed:', data.error || data.message || 'Unknown error');
-        alert('Erreur de téléchargement : ' + (data.error || data.message || 'Vérifiez les réglages serveur'));
-      }
-      return data.success ? data.url : null;
-    } catch (error) {
-      console.error('Upload error:', error);
-      alert('Erreur réseau : impossible de contacter le serveur de téléchargement');
+    
+    // Check file size (max 4MB for Vercel)
+    if (file.size > 4 * 1024 * 1024) {
+      alert('Image trop grande (max 4MB). Veuillez compresser votre image.');
       return null;
     }
+
+    // Convert to Base64 directly in browser - no server needed
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64 = reader.result as string;
+        resolve(base64); // base64 = "data:image/jpeg;base64,..."
+      };
+      reader.onerror = () => {
+        alert('Erreur lors de la lecture du fichier.');
+        resolve(null);
+      };
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleProductSubmit = async (e: React.FormEvent) => {
