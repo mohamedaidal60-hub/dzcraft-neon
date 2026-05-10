@@ -31,9 +31,9 @@ export default function History() {
         <div className="text-sm font-medium text-stone-500 uppercase tracking-widest mb-4">
           Le saviez-vous ?
         </div>
-        <h1 className="text-4xl md:text-6xl font-serif mb-6 leading-tight">
-          Histoires & Traditions
-        </h1>
+         <h1 className="text-3xl sm:text-4xl md:text-6xl font-serif mb-6 leading-tight">
+           Histoires & Traditions
+         </h1>
         <p className="text-stone-500 text-lg md:text-xl font-light">
           Découvrez les éléments de l'histoire algérienne qui inspirent nos collections. 
           Chaque article raconte une histoire.

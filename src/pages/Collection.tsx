@@ -82,8 +82,8 @@ export default function Collection() {
       </motion.div>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap gap-4 items-center bg-white p-2 rounded-2xl shadow-sm border border-stone-100 mb-12 relative z-20">
-        <div className="flex items-center px-4 py-2 text-stone-400 border-r border-stone-100 mr-2">
+      <div className="flex flex-wrap gap-2 md:gap-4 items-center bg-white p-2 rounded-2xl shadow-sm border border-stone-100 mb-12 relative z-20">
+        <div className="flex items-center px-4 py-2 text-stone-400 border-b md:border-b-0 md:border-r border-stone-100 w-full md:w-auto">
           <Filter className="w-4 h-4 mr-2" />
           <span className="text-sm font-medium">Filtrer par :</span>
         </div>

@@ -80,10 +80,10 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-3xl md:text-5xl lg:text-6xl font-sans font-semibold mb-6 tracking-tight uppercase"
-          >
-            LA PREMIÈRE BOUTIQUE CADEAU DES ALGÉRIENS
-          </motion.h1>
+             className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-sans font-semibold mb-6 tracking-tight uppercase"
+           >
+             LA PREMIÈRE BOUTIQUE CADEAU DES ALGÉRIENS
+           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

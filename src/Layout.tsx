@@ -9,11 +9,11 @@ import SocialProof from './components/SocialProof';
 const Logo = ({ url, variant = 'light' }: { url?: string, variant?: 'light' | 'dark' }) => (
   <div className="flex flex-col items-center">
     {url ? (
-      <img 
-        src={url} 
-        alt="DZCRAFTDESIGN" 
-        className={`h-24 md:h-32 object-contain ${variant === 'light' ? 'mix-blend-multiply contrast-[1.1] brightness-[1.05]' : 'invert mix-blend-screen'}`} 
-      />
+       <img 
+         src={url} 
+         alt="DZCRAFTDESIGN" 
+         className={`h-16 sm:h-24 md:h-32 object-contain ${variant === 'light' ? 'mix-blend-multiply contrast-[1.1] brightness-[1.05]' : 'invert mix-blend-screen'}`} 
+       />
     ) : (
       <div className={variant === 'dark' ? 'text-white' : 'text-stone-900'}>
         <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
