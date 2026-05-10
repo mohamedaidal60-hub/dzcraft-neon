@@ -62,14 +62,14 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-stone-900">
-          <img 
-            src={settings.hero_image_url || "https://images.unsplash.com/photo-1512412023212-f09990aa80c8?auto=format&fit=crop&q=80"} 
-            alt="Algerian Tradition" 
-            className="w-full h-full object-cover opacity-60"
-            referrerPolicy="no-referrer"
-          />
+       <section className="relative h-[95vh] flex items-center justify-center overflow-hidden">
+         <div className="absolute inset-0 bg-stone-900">
+           <img 
+             src={settings.hero_image_url || "https://images.unsplash.com/photo-1512412023212-f09990aa80c8?auto=format&fit=crop&q=80"} 
+             alt="Algerian Tradition" 
+             className="w-full h-full object-cover opacity-60 object-center"
+             referrerPolicy="no-referrer"
+           />
           {/* Logo en filigrane dynamique */}
           <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
             <img 
@@ -84,7 +84,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-3xl md:text-5xl lg:text-6xl font-sans font-bold mb-6 tracking-tight uppercase"
+            className="text-3xl md:text-5xl lg:text-6xl font-sans font-semibold mb-6 tracking-tight uppercase"
           >
             LA PREMIÈRE BOUTIQUE CADEAU DES ALGÉRIENS
           </motion.h1>
