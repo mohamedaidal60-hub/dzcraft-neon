@@ -15,7 +15,7 @@ export default function Checkout() {
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [postalCode, setPostalCode] = useState('');
-  const [deliveryMethod, setDeliveryMethod] = useState<'home' | 'relay'>('home');
+  const [deliveryMethod, setDeliveryMethod] = useState<'home' | 'relay' | 'lettre_suivie'>('home');
   const [selectedRelay, setSelectedRelay] = useState<any>(null);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -66,9 +66,13 @@ export default function Checkout() {
       const itemsList = cart.map(item => `- ${item.name} (x${item.quantity}) - ${item.price}€`).join('\n');
       const deliveryInfo = deliveryMethod === 'relay' 
         ? `Point Relais: ${selectedRelay.Nom} (${selectedRelay.ID})\nAdresse: ${selectedRelay.Adresse1}, ${selectedRelay.CP} ${selectedRelay.Ville}`
+        : deliveryMethod === 'lettre_suivie'
+        ? `Lettre Suivie Europe: ${address}, ${postalCode} ${city}`
         : `Domicile: ${address}, ${postalCode} ${city}`;
       
-      const whatsappMessage = `Nouvelle commande sur DZCRAFTDESIGN !\n\nClient: ${name}\nEmail: ${email}\nTel: ${phone}\n\nProduits:\n${itemsList}\n\nMode de livraison: ${deliveryMethod === 'relay' ? 'POINT RELAIS' : 'DOMICILE'}\n${deliveryInfo}\n\nTOTAL: ${total.toFixed(2)}€`;
+      const finalTotal = deliveryMethod === 'lettre_suivie' ? total + 2.10 : total;
+      
+      const whatsappMessage = `Nouvelle commande sur DZCRAFTDESIGN !\n\nClient: ${name}\nEmail: ${email}\nTel: ${phone}\n\nProduits:\n${itemsList}\n\nMode de livraison: ${deliveryMethod === 'relay' ? 'POINT RELAIS' : deliveryMethod === 'lettre_suivie' ? 'LETTRE SUIVIE EUROPE' : 'DOMICILE'}\n${deliveryInfo}\n\nTOTAL: ${finalTotal.toFixed(2)}€`;
       
       const encodedMessage = encodeURIComponent(whatsappMessage);
       const whatsappUrl = `https://wa.me/33767099115?text=${encodedMessage}`;
@@ -170,24 +174,31 @@ export default function Checkout() {
                     />
                   </div>
 
-                  <div className="bg-stone-100 p-1 rounded-2xl flex mb-8">
+                  <div className="bg-stone-100 p-1 rounded-2xl flex flex-wrap gap-1 mb-8">
                     <button 
                       type="button"
                       onClick={() => setDeliveryMethod('home')}
-                      className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${deliveryMethod === 'home' ? 'bg-white shadow-sm text-stone-900' : 'text-stone-500'}`}
+                      className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl text-sm font-medium transition-all ${deliveryMethod === 'home' ? 'bg-white shadow-sm text-stone-900' : 'text-stone-500'}`}
                     >
                       Livraison à domicile
                     </button>
                     <button 
                       type="button"
                       onClick={() => setDeliveryMethod('relay')}
-                      className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium transition-all ${deliveryMethod === 'relay' ? 'bg-white shadow-sm text-stone-900' : 'text-stone-500'}`}
+                      className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl text-sm font-medium transition-all ${deliveryMethod === 'relay' ? 'bg-white shadow-sm text-stone-900' : 'text-stone-500'}`}
                     >
                       Point Relais
                     </button>
+                    <button 
+                      type="button"
+                      onClick={() => setDeliveryMethod('lettre_suivie')}
+                      className={`flex-1 min-w-[120px] py-3 px-4 rounded-xl text-sm font-medium transition-all ${deliveryMethod === 'lettre_suivie' ? 'bg-white shadow-sm text-stone-900' : 'text-stone-500'}`}
+                    >
+                      Lettre Suivie Europe (+2.10€)
+                    </button>
                   </div>
 
-                  {deliveryMethod === 'home' ? (
+                  {deliveryMethod === 'home' || deliveryMethod === 'lettre_suivie' ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-stone-700 mb-2">Adresse de livraison</label>
@@ -301,11 +312,13 @@ export default function Checkout() {
                 </div>
                 <div className="flex justify-between text-stone-600 text-sm">
                   <span>Frais de livraison</span>
-                  <span className="text-emerald-600 font-medium">Calculés à l'étape suivante</span>
+                  <span className="text-emerald-600 font-medium">
+                    {deliveryMethod === 'lettre_suivie' ? '+2.10 €' : 'Calculés à l\'étape suivante'}
+                  </span>
                 </div>
                 <div className="flex justify-between font-bold text-xl pt-4 border-t border-stone-200 text-stone-900">
                   <span>Total</span>
-                  <span>{total.toFixed(2)} €</span>
+                  <span>{(deliveryMethod === 'lettre_suivie' ? total + 2.10 : total).toFixed(2)} €</span>
                 </div>
               </div>
             </div>

@@ -148,9 +148,9 @@ export default function Home() {
       <section className="bg-stone-900 text-white py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-16 items-center">
           <div>
-            <h2 className="text-4xl font-serif mb-6">Notre Histoire, Votre Style</h2>
+            <h2 className="text-4xl font-serif mb-6 uppercase">NOTRE HISTOIRE, NOTRE IDENTITÉ</h2>
             <p className="text-stone-400 text-lg mb-8 leading-relaxed">
-              DZCRAFTDESIGN est né d'une passion pour le patrimoine algérien. Chaque pièce est pensée et fabriquée en Algérie, valorisant le secteur du textile, de l'imprimerie et de l'emballage local.
+              DZCRAFTDESIGN imagine des créations modernes inspirées de la culture algérienne, entre héritage, identité et mémoire.
             </p>
             <Link to="/qui-suis-je" className="inline-flex items-center font-medium hover:text-emerald-400 transition-colors">
               Découvrir notre histoire <span className="ml-2">&rarr;</span>

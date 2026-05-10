@@ -20,18 +20,14 @@ export default function About() {
             L'histoire derrière DZCRAFTDESIGN
           </h1>
           <div className="prose prose-stone text-stone-600 text-lg leading-relaxed space-y-6">
-            <p>
-              Je suis franco-algérienne, née à Marseille, donc presque en Algérie. J’ai grandi entre deux rives, bercée par une double culture qui a naturellement façonnée mon identité. La proximité géographique et l’éducation font qu’on ne s’éloigne jamais vraiment de ses racines.
-            </p>
-            <p>
-              Comme beaucoup, j’ai d’abord exploré le monde, construit mon parcours et travaillé pendant plus de 20 ans au sein du leader mondial du textile. En parallèle, j’avais cette passion qui ne m’a jamais quittée : la customisation.
-            </p>
-            <p>
-              Création sur différents supports, accessoires ou vêtements inspirés de l’Algérie, de ses codes, de ses traditions, de son histoire, comme un fil conducteur intime.
-            </p>
-            <p>
-              Puis est venu le déclic : l’envie profonde de donner du sens, de contribuer à ma manière à l’économie algérienne. Parce qu’au fond, on lui doit beaucoup. Et parce qu’il arrive un moment où l’on ressent le besoin de se rapprocher de ce qui nous définit vraiment.
-            </p>
+            <p>Je suis franco-algérienne, née à Marseille… donc presque en Algérie 😉</p>
+            <p>Comme beaucoup d’entre nous, j’ai grandi entre deux rives, avec un attachement parfois encore plus fort pour un pays où je ne vivais pas. Mais au fond, on ne lutte pas contre son ADN.</p>
+            <p>J’ai eu la chance de recevoir de ma mère une éducation riche en culture et en traditions. Mon père, lui, m’a transmis l’histoire de l’Algérie. Le combat de nos aînés, leur résilience, leur courage, leur profond attachement à leur pays et leur foi en Dieu ont façonné mon caractère et ma manière de voir la vie.</p>
+            <p>Toutes ces influences m’ont construite, guidée et accompagnée dans mon parcours, bien au-delà de ce que j’imaginais.</p>
+            <p>Tout cela, j’ai commencé à l’exprimer à travers des objets, des vêtements, des créations inspirées de l’Algérie et, petit à petit, c’est devenu une évidence je devais me rapprocher de l’Algérie. Aujourd’hui, je suis fière, avec cette marque, de participer à l’économie algérienne, même si je n’y vis pas « pour l’instant ».</p>
+            <p>Aujourd’hui, c’est avec une grande fierté que je peux dire que cette marque est le reflet de mon identité et de mon attachement à l’Algérie. À travers chaque création, je partage avec vous cette histoire, cette identité et cet attachement qui nous animent tous en tant qu’Algériens.</p>
+            <p>Mon ambition est simple faire de ce site celui où l’on trouve le cadeau parfait à offrir à un Algérien ou une Algérienne, ou simplement à soi-même.</p>
+            <p>Je vous souhaite une excellente visite sur mon site. N’hésitez pas à m’écrire pour me faire part de vos idées, ce sera avec grand plaisir que nous échangerons.</p>
           </div>
         </motion.div>
         
