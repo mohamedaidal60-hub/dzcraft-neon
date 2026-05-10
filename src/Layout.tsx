@@ -119,8 +119,8 @@ export default function Layout() {
             <div className="w-16 h-16 bg-white shadow-sm rounded-full flex items-center justify-center mb-4 text-emerald-600">
               <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" /></svg>
             </div>
-            <h4 className="font-medium font-serif mb-1">Des détails qui font la différence</h4>
-            <p className="text-xs text-stone-500">Fabrication artisanale algérienne.</p>
+            <h4 className="font-medium font-serif mb-1">Un détail qui fait la différence</h4>
+            <p className="text-xs text-stone-500">Créé par une Algérienne pour les Algériens.</p>
           </div>
           <div className="flex flex-col items-center">
             <div className="w-16 h-16 bg-white shadow-sm rounded-full flex items-center justify-center mb-4 text-emerald-600">
@@ -134,7 +134,7 @@ export default function Layout() {
               <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
             </div>
             <h4 className="font-medium font-serif mb-1">Paiement Sécurisé</h4>
-            <p className="text-xs text-stone-500">Uniquement à la livraison.</p>
+            <p className="text-xs text-stone-500">Paiement à la commande.</p>
           </div>
           <div className="flex flex-col items-center">
             <div className="w-16 h-16 bg-white shadow-sm rounded-full flex items-center justify-center mb-4 text-emerald-600">
