@@ -15,6 +15,7 @@ export default function Checkout() {
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
   const [postalCode, setPostalCode] = useState('');
+  const [country, setCountry] = useState('France');
   const [deliveryMethod, setDeliveryMethod] = useState<'home' | 'relay' | 'lettre_suivie'>('home');
   const [selectedRelay, setSelectedRelay] = useState<any>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -50,6 +51,7 @@ export default function Checkout() {
         shipping_address: deliveryMethod === 'relay' ? selectedRelay.Adresse1 : (address || 'N/A'),
         shipping_city: deliveryMethod === 'relay' ? selectedRelay.Ville : (city || 'N/A'),
         shipping_postal_code: deliveryMethod === 'relay' ? selectedRelay.CP : (postalCode || '00000'),
+        shipping_country: deliveryMethod === 'lettre_suivie' ? country : (deliveryMethod === 'relay' ? selectedRelay.Pays : 'Algérie'),
         delivery_method: deliveryMethod,
         relay_id: deliveryMethod === 'relay' ? selectedRelay.ID : null,
         items: cart 
@@ -65,9 +67,9 @@ export default function Checkout() {
       // Prepare WhatsApp message
       const itemsList = cart.map(item => `- ${item.name} (x${item.quantity}) - ${item.price}€`).join('\n');
       const deliveryInfo = deliveryMethod === 'relay' 
-        ? `Point Relais: ${selectedRelay.Nom} (${selectedRelay.ID})\nAdresse: ${selectedRelay.Adresse1}, ${selectedRelay.CP} ${selectedRelay.Ville}`
+        ? `Point Relais: ${selectedRelay.Nom} (${selectedRelay.ID})\nAdresse: ${selectedRelay.Adresse1}, ${selectedRelay.CP} ${selectedRelay.Ville} (${selectedRelay.Pays})`
         : deliveryMethod === 'lettre_suivie'
-        ? `Lettre Suivie Europe: ${address}, ${postalCode} ${city}`
+        ? `Lettre Suivie Europe:\nAdresse: ${address}, ${postalCode} ${city}\nPays: ${country}`
         : `Domicile: ${address}, ${postalCode} ${city}`;
       
       const finalTotal = deliveryMethod === 'lettre_suivie' ? total + 2.10 : total;
@@ -212,14 +214,14 @@ export default function Checkout() {
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-stone-700 mb-2">Wilaya / Ville</label>
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Ville</label>
                         <input 
                           type="text" 
                           required
                           value={city}
                           onChange={e => setCity(e.target.value)}
                           className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
-                          placeholder="Alger, Oran..."
+                          placeholder={deliveryMethod === 'lettre_suivie' ? "Paris, Lyon..." : "Alger, Oran..."}
                         />
                       </div>
                       <div>
@@ -230,9 +232,32 @@ export default function Checkout() {
                           value={postalCode}
                           onChange={e => setPostalCode(e.target.value)}
                           className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
-                          placeholder="Ex: 75001"
+                          placeholder={deliveryMethod === 'lettre_suivie' ? "Ex: 75001" : "Ex: 16000"}
                         />
                       </div>
+                      {deliveryMethod === 'lettre_suivie' && (
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-stone-700 mb-2">Pays (Europe)</label>
+                          <select
+                            value={country}
+                            onChange={e => setCountry(e.target.value)}
+                            className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                          >
+                            <option value="France">France</option>
+                            <option value="Belgique">Belgique</option>
+                            <option value="Suisse">Suisse</option>
+                            <option value="Allemagne">Allemagne</option>
+                            <option value="Espagne">Espagne</option>
+                            <option value="Italie">Italie</option>
+                            <option value="Pays-Bas">Pays-Bas</option>
+                            <option value="Luxembourg">Luxembourg</option>
+                            <option value="Royaume-Uni">Royaume-Uni</option>
+                            <option value="Irlande">Irlande</option>
+                            <option value="Portugal">Portugal</option>
+                            <option value="Autriche">Autriche</option>
+                          </select>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="space-y-6">

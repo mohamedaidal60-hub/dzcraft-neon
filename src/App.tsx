@@ -7,7 +7,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { useStore } from './store';
 import Layout from './Layout';
-
+import ScrollToTop from './components/ScrollToTop';
 import Home from './pages/Home';
 import Collection from './pages/Collection';
 import Product from './pages/Product';
@@ -66,6 +66,7 @@ export default function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
 
         {/* <Route path="/selection" element={<Selection />} /> */}
