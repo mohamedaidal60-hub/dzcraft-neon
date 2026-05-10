@@ -4,7 +4,8 @@
  */
 
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'motion/react';
 import { useStore } from './store';
 import Layout from './Layout';
 import ScrollToTop from './components/ScrollToTop';
@@ -25,52 +26,12 @@ import ShippingPolicy from './pages/ShippingPolicy';
 
 // import Selection from './pages/Selection';
 
-export default function App() {
-  const setSettings = useStore(state => state.setSettings);
-  const setProducts = useStore(state => state.setProducts);
-  const userSelections = useStore(state => state.userSelections);
-
-  useEffect(() => {
-    const loadData = async () => {
-      console.log('Initialisation de l\'application...');
-      try {
-        const [settingsRes, productsRes] = await Promise.all([
-          fetch('/api/settings'),
-          fetch('/api/products')
-        ]);
-
-        console.log('Réponse settings:', settingsRes.status);
-        console.log('Réponse products:', productsRes.status);
-
-        if (settingsRes.ok) {
-          const settingsData = await settingsRes.json();
-          console.log('Données settings chargées:', settingsData);
-          setSettings(settingsData || {});
-        } else {
-          console.error('Failed to load settings:', settingsRes.status);
-        }
-
-        if (productsRes.ok) {
-          const productsData = await productsRes.json();
-          console.log('Nombre de produits chargés:', Array.isArray(productsData) ? productsData.length : 0);
-          setProducts(Array.isArray(productsData) ? productsData : []);
-        } else {
-          console.error('Failed to load products:', productsRes.status);
-        }
-      } catch (err) {
-        console.error('Network error while loading initial data:', err);
-      }
-    };
-
-    loadData();
-  }, [setSettings, setProducts]);
-
+function AnimatedRoutes() {
+  const location = useLocation();
+  
   return (
-    <Router>
-      <ScrollToTop />
-      <Routes>
-
-        {/* <Route path="/selection" element={<Selection />} /> */}
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="collection/:category" element={<Collection />} />
@@ -89,6 +50,43 @@ export default function App() {
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+    </AnimatePresence>
+  );
+}
+
+export default function App() {
+  const setSettings = useStore(state => state.setSettings);
+  const setProducts = useStore(state => state.setProducts);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [settingsRes, productsRes] = await Promise.all([
+          fetch('/api/settings'),
+          fetch('/api/products')
+        ]);
+
+        if (settingsRes.ok) {
+          const settingsData = await settingsRes.json();
+          setSettings(settingsData || {});
+        }
+
+        if (productsRes.ok) {
+          const productsData = await productsRes.json();
+          setProducts(Array.isArray(productsData) ? productsData : []);
+        }
+      } catch (err) {
+        console.error('Network error while loading initial data:', err);
+      }
+    };
+
+    loadData();
+  }, [setSettings, setProducts]);
+
+  return (
+    <Router>
+      <ScrollToTop />
+      <AnimatedRoutes />
     </Router>
   );
 }

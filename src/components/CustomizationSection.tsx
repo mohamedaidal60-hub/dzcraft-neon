@@ -8,15 +8,7 @@ const SLOGANS = [
   'Je n\'ai peur de rien ma mère est...'
 ];
 
-const ORIGINS = ['Algérien', 'Kabyle', 'Arabe', 'Chaoui', 'Touareg', 'Mozabite', 'Chenoui', 'Chelhi', 'Sahraoui'];
-
-const WILAYAS = [
-  '01 - Adrar', '02 - Chlef', '03 - Laghouat', '04 - Oum El Bouaghi', '05 - Batna', '06 - Béjaïa', '07 - Biskra', '08 - Béchar', '09 - Blida', '10 - Bouira',
-  '11 - Tamanrasset', '12 - Tébessa', '13 - Tlemcen', '14 - Tiaret', '15 - Tizi Ouzou', '16 - Alger', '17 - Djelfa', '18 - Jijel', '19 - Sétif', '20 - Saïda',
-  '21 - Skikda', '22 - Sidi Bel Abbès', '23 - Annaba', '24 - Guelma', '25 - Constantine', '26 - Médéa', '27 - Mostaganem', '28 - M\'Sila', '29 - Mascara', '30 - Ouargla',
-  '31 - Oran', '32 - El Bayadh', '33 - Illizi', '34 - Bordj Bou Arreridj', '35 - Boumerdès', '36 - El Tarf', '37 - Tindouf', '38 - Tissemsilt', '39 - El Oued', '40 - Khenchela',
-  '41 - Souk Ahras', '42 - Tipaza', '43 - Mila', '44 - Aïn Defla', '45 - Naâma', '46 - Aïn Témouchent', '47 - Ghardaïa', '48 - Relizane'
-];
+const ORIGINS = ['Algérien', 'Algérienne', 'Kouloughli'];
 
 export default function CustomizationSection() {
   const [slogan, setSlogan] = useState(SLOGANS[1]);
@@ -88,7 +80,7 @@ export default function CustomizationSection() {
                 </div>
 
                 <div className="relative">
-                  <label className="block text-sm font-medium text-stone-500 mb-2">Choisir l'origine / wilaya</label>
+                  <label className="block text-sm font-medium text-stone-500 mb-2">Choisir l'identité</label>
                   <button 
                     onClick={() => setActiveDropdown(activeDropdown === 'origin' ? null : 'origin')}
                     className="w-full flex items-center justify-between px-4 py-3 bg-white border border-stone-200 rounded-xl text-sm font-medium shadow-sm hover:border-emerald-300 transition-colors"
@@ -97,8 +89,7 @@ export default function CustomizationSection() {
                     <ChevronDown className={`w-4 h-4 transition-transform ${activeDropdown === 'origin' ? 'rotate-180' : ''}`} />
                   </button>
                   {activeDropdown === 'origin' && (
-                    <div className="absolute top-full left-0 mt-2 w-full bg-white rounded-xl shadow-xl border border-stone-100 p-2 z-30 max-h-64 overflow-y-auto">
-                      <div className="px-3 py-1 text-[10px] uppercase tracking-widest text-stone-400 font-bold mb-1">Ethnies</div>
+                    <div className="absolute top-full left-0 mt-2 w-full bg-white rounded-xl shadow-xl border border-stone-100 p-2 z-30">
                       {ORIGINS.map(o => (
                         <button 
                           key={o} 
@@ -107,17 +98,6 @@ export default function CustomizationSection() {
                         >
                           {o}
                           {origin === o && <Check className="w-4 h-4 text-emerald-600" />}
-                        </button>
-                      ))}
-                      <div className="px-3 py-1 text-[10px] uppercase tracking-widest text-stone-400 font-bold mt-4 mb-1 border-t border-stone-50 pt-3">Wilayas</div>
-                      {WILAYAS.map(w => (
-                        <button 
-                          key={w} 
-                          onClick={() => { setOrigin(w.split(' - ')[1]); setActiveDropdown(null); }}
-                          className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm hover:bg-stone-50 transition-colors"
-                        >
-                          {w}
-                          {origin === w.split(' - ')[1] && <Check className="w-4 h-4 text-emerald-600" />}
                         </button>
                       ))}
                     </div>

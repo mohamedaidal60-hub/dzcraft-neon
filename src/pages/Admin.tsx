@@ -17,9 +17,11 @@ export default function Admin() {
   const [orders, setOrders] = useState([]);
   const [historyPosts, setHistoryPosts] = useState([]);
   const [message, setMessage] = useState('');
+  const [trackingForm, setTrackingForm] = useState({ orderId: '', number: '', carrier: 'Mondial Relay' });
 
   const [productForm, setProductForm] = useState({
-    name: '', slug: '', description: '', price: '', category_id: '', image_url: ''
+    name: '', slug: '', description: '', price: '', category_id: '', image_url: '',
+    target_group: [] as string[]
   });
 
    const [settingsForm, setSettingsForm] = useState({
@@ -80,6 +82,34 @@ export default function Admin() {
     navigate('/');
   };
 
+  const handleUpdateTracking = async (orderId: string) => {
+    if (!trackingForm.number) {
+      showMessage('Veuillez entrer un numéro de suivi');
+      return;
+    }
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}/tracking`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          tracking_number: trackingForm.number, 
+          carrier: trackingForm.carrier 
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showMessage('Suivi mis à jour et email envoyé !');
+        setTrackingForm({ orderId: '', number: '', carrier: 'Mondial Relay' });
+        // Refresh orders
+        const ordersRes = await fetch('/api/admin/orders');
+        const ordersData = await ordersRes.json();
+        setOrders(ordersData);
+      }
+    } catch (err) {
+      showMessage('Erreur lors de la mise à jour');
+    }
+  };
+
   const showMessage = (msg: string) => {
     setMessage(msg);
     setTimeout(() => setMessage(''), 3000);
@@ -132,7 +162,10 @@ export default function Admin() {
       const data = await res.json();
       if (data.success) {
         showMessage('Produit ajouté avec succès !');
-        setProductForm({ name: '', slug: '', description: '', price: '', category_id: categories[0]?.id.toString() || '', image_url: '' });
+        setProductForm({ 
+          name: '', slug: '', description: '', price: '', category_id: categories[0]?.id.toString() || '', image_url: '',
+          target_group: []
+        });
         setProductFile(null);
       } else {
         showMessage('Erreur lors de l\'ajout du produit.');
@@ -332,6 +365,29 @@ export default function Admin() {
                   <input type="file" accept="image/*" onChange={e => setProductFile(e.target.files?.[0] || null)} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500 bg-white" />
                   {productForm.image_url && !productFile && <p className="text-xs text-stone-500 mt-2">Image actuelle : {productForm.image_url}</p>}
                 </div>
+
+                <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-stone-700 mb-2">Groupes Cibles</label>
+                    <div className="flex flex-wrap gap-4 p-3 border border-stone-200 rounded-xl">
+                      {['Adulte', 'Enfant', 'Bébé', 'Accessoire'].map(tgt => (
+                        <label key={tgt} className="flex items-center gap-2 text-sm">
+                          <input 
+                            type="checkbox" 
+                            checked={productForm.target_group.includes(tgt)}
+                            onChange={(e) => {
+                              const val = e.target.checked 
+                                ? [...productForm.target_group, tgt]
+                                : productForm.target_group.filter(v => v !== tgt);
+                              setProductForm({ ...productForm, target_group: val });
+                            }}
+                          />
+                          {tgt}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
                 <button type="submit" disabled={uploading} className="w-full py-4 bg-stone-900 text-white font-medium rounded-xl hover:bg-stone-800 transition-colors disabled:opacity-50">
                   {uploading ? 'Enregistrement...' : 'Ajouter le produit'}
                 </button>
@@ -458,9 +514,43 @@ export default function Admin() {
                         </td>
                         <td className="py-4 text-stone-500">{new Date(order.created_at).toLocaleDateString()}</td>
                         <td className="py-4">
-                          <span className="bg-stone-100 text-stone-600 px-3 py-1 rounded-full text-xs font-medium">
-                            {order.status}
-                          </span>
+                          {order.status === 'pending' ? (
+                            <div className="flex flex-col gap-2">
+                              <select 
+                                className="text-[10px] border border-stone-200 rounded p-1"
+                                value={trackingForm.orderId === order.id ? trackingForm.carrier : 'Mondial Relay'}
+                                onChange={(e) => setTrackingForm({ ...trackingForm, orderId: order.id, carrier: e.target.value })}
+                              >
+                                <option value="Mondial Relay">Mondial Relay</option>
+                                <option value="Lettre Suivie">Lettre Suivie</option>
+                                <option value="Colis Privé">Colis Privé</option>
+                              </select>
+                              <div className="flex gap-1">
+                                <input 
+                                  type="text" 
+                                  placeholder="N° Suivi"
+                                  className="text-[10px] border border-stone-200 rounded p-1 w-20"
+                                  value={trackingForm.orderId === order.id ? trackingForm.number : ''}
+                                  onChange={(e) => setTrackingForm({ ...trackingForm, orderId: order.id, number: e.target.value })}
+                                />
+                                <button 
+                                  onClick={() => handleUpdateTracking(order.id)}
+                                  className="bg-emerald-600 text-white text-[10px] px-2 py-1 rounded hover:bg-emerald-700"
+                                >
+                                  Envoyer
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col">
+                              <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-medium w-fit">
+                                {order.status}
+                              </span>
+                              {order.tracking_number && (
+                                <span className="text-[10px] text-stone-500 mt-1 font-mono">{order.tracking_number}</span>
+                              )}
+                            </div>
+                          )}
                         </td>
                       </tr>
                     ))}

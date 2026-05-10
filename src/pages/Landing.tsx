@@ -9,15 +9,8 @@ const SLOGANS = [
   'Je n\'ai peur de rien ma mère est...'
 ];
 
-const ORIGINS = ['Algérien', 'Kabyle', 'Arabe', 'Chaoui', 'Touareg', 'Mozabite', 'Chenoui', 'Chelhi', 'Sahraoui'];
+const ORIGINS = ['Algérien', 'Algérienne', 'Fier d\'être DZ'];
 
-const WILAYAS = [
-  'Adrar', 'Chlef', 'Laghouat', 'Oum El Bouaghi', 'Batna', 'Béjaïa', 'Biskra', 'Béchar', 'Blida', 'Bouira',
-  'Tamanrasset', 'Tébessa', 'Tlemcen', 'Tiaret', 'Tizi Ouzou', 'Alger', 'Djelfa', 'Jijel', 'Sétif', 'Saïda',
-  'Skikda', 'Sidi Bel Abbès', 'Annaba', 'Guelma', 'Constantine', 'Médéa', 'Mostaganem', 'M\'Sila', 'Mascara', 'Ouargla',
-  'Oran', 'El Bayadh', 'Illizi', 'Bordj Bou Arreridj', 'Boumerdès', 'El Tarf', 'Tindouf', 'Tissemsilt', 'El Oued', 'Khenchela',
-  'Souk Ahras', 'Tipaza', 'Mila', 'Aïn Defla', 'Naâma', 'Aïn Témouchent', 'Ghardaïa', 'Relizane'
-];
 
 export default function Landing() {
   const [slogan, setSlogan] = useState(SLOGANS[1]);
@@ -98,7 +91,7 @@ export default function Landing() {
 
             {/* Origin Dropdown */}
             <div className="relative">
-              <label className="block text-xs font-bold uppercase tracking-wider text-stone-400 mb-2 ml-1">2. Choisir l'ethnie ou la wilaya</label>
+              <label className="block text-xs font-bold uppercase tracking-wider text-stone-400 mb-2 ml-1">2. Choisir l'identité</label>
               <button 
                 onClick={() => setActiveDropdown(activeDropdown === 'origin' ? null : 'origin')}
                 className="w-full flex items-center justify-between px-5 py-4 bg-white border border-stone-200 rounded-2xl text-sm font-medium shadow-sm hover:border-emerald-300 transition-colors"
@@ -107,8 +100,7 @@ export default function Landing() {
                 <ChevronDown className={`w-4 h-4 text-stone-400 transition-transform ${activeDropdown === 'origin' ? 'rotate-180' : ''}`} />
               </button>
               {activeDropdown === 'origin' && (
-                <div className="absolute top-full left-0 mt-2 w-full bg-white rounded-2xl shadow-2xl border border-stone-100 p-2 z-50 max-h-72 overflow-y-auto">
-                  <div className="px-4 py-2 text-[10px] font-bold text-emerald-600 uppercase tracking-widest bg-emerald-50 rounded-lg mb-2">Ethnies d'Algérie</div>
+                <div className="absolute top-full left-0 mt-2 w-full bg-white rounded-2xl shadow-2xl border border-stone-100 p-2 z-50">
                   {ORIGINS.map(o => (
                     <button 
                       key={o} 
@@ -117,20 +109,6 @@ export default function Landing() {
                     >
                       {o}
                       {origin === o && <Check className="w-4 h-4 text-emerald-600" />}
-                    </button>
-                  ))}
-                  <div className="px-4 py-2 text-[10px] font-bold text-blue-600 uppercase tracking-widest bg-blue-50 rounded-lg mt-4 mb-2">Les 58 Wilayas</div>
-                  {WILAYAS.map((w, idx) => (
-                    <button 
-                      key={w} 
-                      onClick={() => { setOrigin(w); setActiveDropdown(null); }}
-                      className="w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm hover:bg-stone-50 transition-colors"
-                    >
-                      <span className="flex items-center">
-                        <span className="w-6 text-[10px] font-mono text-stone-400">{(idx + 1).toString().padStart(2, '0')}</span>
-                        {w}
-                      </span>
-                      {origin === w && <Check className="w-4 h-4 text-emerald-600" />}
                     </button>
                   ))}
                 </div>
@@ -171,7 +149,7 @@ export default function Landing() {
               Commander via WhatsApp
             </button>
             <p className="mt-6 text-stone-400 text-xs flex items-center justify-center gap-1">
-              <Check className="w-3 h-3" /> Fait main en Algérie • Expédition rapide
+              <Check className="w-3 h-3" /> Artisanat d'Exception • Livraison Europe 3-5j
             </p>
             
             <div className="mt-10 pt-8 border-t border-stone-50 flex justify-center gap-6">

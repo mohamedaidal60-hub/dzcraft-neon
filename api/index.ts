@@ -1,6 +1,7 @@
 import express from 'express';
 import pg from 'pg';
 import dotenv from 'dotenv';
+import { emailService } from './email.js';
 
 dotenv.config();
 
@@ -58,7 +59,12 @@ app.post('/api/auth/register', async (req, res) => {
       'INSERT INTO users (email, phone, password, role, first_name, last_name, address, city, postal_code) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *',
       [email, phone, password, 'user', first_name, last_name, address, city, postal_code]
     );
-    res.json({ success: true, user: result.rows[0] });
+    const user = result.rows[0];
+    
+    // Send Welcome Email
+    await emailService.sendWelcomeEmail(email, `${first_name} ${last_name}`);
+    
+    res.json({ success: true, user });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -75,7 +81,7 @@ app.get('/api/categories', async (req, res) => {
 
 app.get('/api/products', async (req, res) => {
   try {
-    const { category, ethnicity, wilaya, target_group } = req.query;
+    const { category, target_group } = req.query;
     let query = `
       SELECT p.*, c.name as category_name, c.slug as category_slug 
       FROM products p 
@@ -86,20 +92,9 @@ app.get('/api/products', async (req, res) => {
     if (category) {
       const catArray = (category as string).split(',');
       params.push(catArray);
-      query += ` AND EXISTS (SELECT 1 FROM categories c WHERE c.id = ANY(p.category_ids) AND c.slug = ANY($${params.length}))`;
+      query += ` AND c.slug = ANY($${params.length})`;
     }
     
-    // Multi-select filters
-    if (ethnicity) {
-      const ethArray = (ethnicity as string).split(',');
-      params.push(ethArray);
-      query += ` AND p.ethnicity && $${params.length}`;
-    }
-    if (wilaya) {
-      const wilArray = (wilaya as string).split(',');
-      params.push(wilArray);
-      query += ` AND p.wilaya && $${params.length}`;
-    }
     if (target_group) {
       const tgtArray = (target_group as string).split(',');
       params.push(tgtArray);
@@ -166,17 +161,17 @@ app.post('/api/clients', async (req, res) => {
 
 // Admin Routes
 app.post('/api/admin/ai-generate', async (req, res) => {
-  const { name, ethnicity, wilaya } = req.body;
-  const description = `Découvrez notre magnifique ${name}, une pièce unique célébrant l'héritage riche et vibrant de la culture ${ethnicity} de la wilaya de ${wilaya}. Conçu avec passion par DZCRAFTDESIGN, ce produit allie tradition artisanale et élégance moderne, parfait pour exprimer votre identité algérienne avec fierté et style.`;
+  const { name } = req.body;
+  const description = `Découvrez notre magnifique ${name}, une pièce unique célébrant l'héritage riche et vibrant de la culture algérienne. Conçu avec passion par DZCRAFTDESIGN, ce produit allie tradition artisanale et élégance moderne, parfait pour offrir ou pour exprimer votre identité avec fierté et style.`;
   res.json({ success: true, description });
 });
 
 app.post('/api/admin/products', async (req, res) => {
-  const { name, slug, description, price, category_id, image_url, ethnicity, wilaya, target_group } = req.body;
+  const { name, slug, description, price, category_id, image_url, target_group } = req.body;
   try {
     const result = await pool.query(
-      'INSERT INTO products (name, slug, description, price, category_id, image_url, ethnicity, wilaya, target_group) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
-      [name, slug, description, parseFloat(price), category_id, image_url, ethnicity, wilaya, target_group]
+      'INSERT INTO products (name, slug, description, price, category_id, image_url, target_group) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      [name, slug, description, parseFloat(price), category_id, image_url, target_group]
     );
     res.json({ success: true, id: result.rows[0].id });
   } catch (error: any) {
@@ -240,6 +235,19 @@ app.post('/api/orders', async (req, res) => {
     );
     const orderId = orderResult.rows[0].id;
     
+    // Get user details for email
+    const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [user_id]);
+    const user = userResult.rows[0];
+    
+    if (user && user.email) {
+      await emailService.sendOrderConfirmation(user.email, {
+        name: `${user.first_name} ${user.last_name}`,
+        orderId: orderId,
+        total: total_amount,
+        items: items
+      });
+    }
+    
     for (const item of items) {
       await pool.query(
         'INSERT INTO order_items (order_id, product_id, quantity, price, size, color) VALUES ($1, $2, $3, $4, $5, $6)',
@@ -263,6 +271,41 @@ app.get('/api/admin/orders', async (req, res) => {
     res.json(result.rows);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/admin/orders/:id/tracking', async (req, res) => {
+  const { tracking_number, carrier } = req.body;
+  const orderId = req.params.id;
+  
+  try {
+    // Update order status and tracking
+    await pool.query(
+      'UPDATE orders SET tracking_number = $1, carrier = $2, status = $3 WHERE id = $4',
+      [tracking_number, carrier, 'shipped', orderId]
+    );
+    
+    // Get order and user details for email
+    const result = await pool.query(`
+      SELECT o.*, u.first_name, u.last_name, u.email 
+      FROM orders o 
+      JOIN users u ON o.user_id = u.id 
+      WHERE o.id = $1
+    `, [orderId]);
+    
+    const order = result.rows[0];
+    if (order && order.email) {
+      await emailService.sendTrackingEmail(order.email, {
+        name: `${order.first_name} ${order.last_name}`,
+        orderId: orderId,
+        trackingNumber: tracking_number,
+        carrier: carrier
+      });
+    }
+    
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 

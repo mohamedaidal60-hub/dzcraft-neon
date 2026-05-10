@@ -106,9 +106,16 @@ export default function Layout() {
         </div>
       </header>
 
-      <main className="flex-grow relative z-10">
+      <motion.main 
+        key={location.pathname}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -10 }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
+        className="flex-grow relative z-10"
+      >
         <Outlet />
-      </main>
+      </motion.main>
 
 
 
@@ -120,7 +127,7 @@ export default function Layout() {
               <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 13l4 4L19 7" /></svg>
             </div>
             <h4 className="font-medium font-serif mb-1">Un détail qui fait la différence</h4>
-            <p className="text-xs text-stone-500">Créé par une Algérienne pour les Algériens.</p>
+            <p className="text-xs text-stone-500">Créations artisanales inspirées de l'identité algérienne.</p>
           </div>
           <div className="flex flex-col items-center">
             <div className="w-16 h-16 bg-white shadow-sm rounded-full flex items-center justify-center mb-4 text-emerald-600">

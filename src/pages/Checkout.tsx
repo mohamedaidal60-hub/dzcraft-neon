@@ -51,7 +51,7 @@ export default function Checkout() {
         shipping_address: deliveryMethod === 'relay' ? selectedRelay.Adresse1 : (address || 'N/A'),
         shipping_city: deliveryMethod === 'relay' ? selectedRelay.Ville : (city || 'N/A'),
         shipping_postal_code: deliveryMethod === 'relay' ? selectedRelay.CP : (postalCode || '00000'),
-        shipping_country: deliveryMethod === 'lettre_suivie' ? country : (deliveryMethod === 'relay' ? selectedRelay.Pays : 'Algérie'),
+        shipping_country: deliveryMethod === 'relay' ? selectedRelay.Pays : country,
         delivery_method: deliveryMethod,
         relay_id: deliveryMethod === 'relay' ? selectedRelay.ID : null,
         items: cart 
@@ -74,7 +74,7 @@ export default function Checkout() {
       
       const finalTotal = deliveryMethod === 'lettre_suivie' ? total + 2.10 : total;
       
-      const whatsappMessage = `Nouvelle commande sur DZCRAFTDESIGN !\n\nClient: ${name}\nEmail: ${email}\nTel: ${phone}\n\nProduits:\n${itemsList}\n\nMode de livraison: ${deliveryMethod === 'relay' ? 'POINT RELAIS' : deliveryMethod === 'lettre_suivie' ? 'LETTRE SUIVIE EUROPE' : 'DOMICILE'}\n${deliveryInfo}\n\nTOTAL: ${finalTotal.toFixed(2)}€`;
+      const whatsappMessage = `Nouvelle commande sur DZCRAFTDESIGN !\n\nClient: ${name}\nEmail: ${email}\nTel: ${phone}\n\nProduits:\n${itemsList}\n\nMode de livraison: ${deliveryMethod === 'relay' ? 'POINT RELAIS' : deliveryMethod === 'lettre_suivie' ? 'LETTRE SUIVIE EUROPE' : 'DOMICILE'}\n${deliveryInfo}\n\nTOTAL: ${finalTotal.toFixed(2)}€\n\nMerci de m'envoyer les instructions pour le paiement par virement/Paypal afin de valider ma commande.`;
       
       const encodedMessage = encodeURIComponent(whatsappMessage);
       const whatsappUrl = `https://wa.me/33767099115?text=${encodedMessage}`;
@@ -210,7 +210,7 @@ export default function Checkout() {
                           value={address}
                           onChange={e => setAddress(e.target.value)}
                           className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
-                          placeholder="Numéro et nom de rue, quartier..."
+                          placeholder="Ex: 15 Rue de la Paix"
                         />
                       </div>
                       <div>
@@ -221,7 +221,7 @@ export default function Checkout() {
                           value={city}
                           onChange={e => setCity(e.target.value)}
                           className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
-                          placeholder={deliveryMethod === 'lettre_suivie' ? "Paris, Lyon..." : "Alger, Oran..."}
+                          placeholder="Paris, Lyon, Bruxelles..."
                         />
                       </div>
                       <div>
@@ -232,32 +232,30 @@ export default function Checkout() {
                           value={postalCode}
                           onChange={e => setPostalCode(e.target.value)}
                           className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
-                          placeholder={deliveryMethod === 'lettre_suivie' ? "Ex: 75001" : "Ex: 16000"}
+                          placeholder="Ex: 75001"
                         />
                       </div>
-                      {deliveryMethod === 'lettre_suivie' && (
-                        <div className="md:col-span-2">
-                          <label className="block text-sm font-medium text-stone-700 mb-2">Pays (Europe)</label>
-                          <select
-                            value={country}
-                            onChange={e => setCountry(e.target.value)}
-                            className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
-                          >
-                            <option value="France">France</option>
-                            <option value="Belgique">Belgique</option>
-                            <option value="Suisse">Suisse</option>
-                            <option value="Allemagne">Allemagne</option>
-                            <option value="Espagne">Espagne</option>
-                            <option value="Italie">Italie</option>
-                            <option value="Pays-Bas">Pays-Bas</option>
-                            <option value="Luxembourg">Luxembourg</option>
-                            <option value="Royaume-Uni">Royaume-Uni</option>
-                            <option value="Irlande">Irlande</option>
-                            <option value="Portugal">Portugal</option>
-                            <option value="Autriche">Autriche</option>
-                          </select>
-                        </div>
-                      )}
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-stone-700 mb-2">Pays (Europe)</label>
+                        <select
+                          value={country}
+                          onChange={e => setCountry(e.target.value)}
+                          className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                        >
+                          <option value="France">France</option>
+                          <option value="Belgique">Belgique</option>
+                          <option value="Suisse">Suisse</option>
+                          <option value="Allemagne">Allemagne</option>
+                          <option value="Espagne">Espagne</option>
+                          <option value="Italie">Italie</option>
+                          <option value="Pays-Bas">Pays-Bas</option>
+                          <option value="Luxembourg">Luxembourg</option>
+                          <option value="Royaume-Uni">Royaume-Uni</option>
+                          <option value="Irlande">Irlande</option>
+                          <option value="Portugal">Portugal</option>
+                          <option value="Autriche">Autriche</option>
+                        </select>
+                      </div>
                     </div>
                   ) : (
                     <div className="space-y-6">
@@ -289,8 +287,8 @@ export default function Checkout() {
                       <CreditCard className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-medium text-emerald-900 text-sm">Paiement à la livraison</h4>
-                      <p className="text-emerald-700 text-xs mt-1">Vous ne payez que lors de la réception de votre colis. 100% sécurisé.</p>
+                      <h4 className="font-medium text-emerald-900 text-sm">Paiement Sécurisé</h4>
+                      <p className="text-emerald-700 text-xs mt-1">Votre commande sera validée dès réception de votre paiement. Simple et rapide.</p>
                     </div>
                   </div>
 

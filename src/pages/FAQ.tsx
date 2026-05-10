@@ -5,23 +5,23 @@ import { HelpCircle, ChevronDown } from 'lucide-react';
 const faqs = [
   {
     q: "Où sont fabriqués vos vêtements ?",
-    a: "Tous nos vêtements sont fabriqués fièrement en Algérie. Nous travaillons avec des ateliers locaux pour valoriser le savoir-faire national, du textile à la confection."
+    a: "Toutes nos créations sont imaginées en France et fabriquées avec passion, valorisant le savoir-faire artisanal et l'héritage culturel algérien."
   },
   {
     q: "Quels sont les délais de livraison ?",
-    a: "Pour l'Algérie, comptez entre 2 et 5 jours ouvrés selon votre wilaya. Pour la France via Mondial Relay, le délai est généralement de 3 à 6 jours ouvrés."
+    a: "Pour la France et la Belgique, comptez entre 3 et 5 jours ouvrés via Mondial Relay ou à domicile. Pour le reste de l'Europe, les délais varient entre 5 et 8 jours ouvrés."
   },
   {
     q: "Puis-je essayer les vêtements avant d'acheter ?",
-    a: "Absolument ! Utilisez notre 'Cabine d'Essayage Virtuelle' alimentée par l'IA Antigravity pour voir comment le vêtement vous va directement sur votre photo."
+    a: "Nous sommes une boutique exclusivement en ligne. Toutefois, nous fournissons des guides de tailles détaillés pour chaque produit afin de vous aider à faire le meilleur choix."
   },
   {
     q: "Comment suivre ma commande ?",
-    a: "Dès que votre commande est traitée, vous recevez un message de confirmation. Pour les livraisons en point relais, un numéro de suivi Mondial Relay vous sera communiqué."
+    a: "Dès que votre commande est expédiée, vous recevez un email avec un numéro de suivi (Mondial Relay, Colis Privé ou Lettre Suivie) vous permettant de suivre votre colis en temps réel."
   },
   {
     q: "Proposez-vous le paiement à la livraison ?",
-    a: "Oui, le paiement à la livraison est disponible pour toutes les commandes en Algérie."
+    a: "Non, toutes les commandes sont payables au moment de la validation sur notre site via virement bancaire ou Paypal. Cela nous permet de garantir une expédition rapide et sécurisée."
   }
 ];
 
