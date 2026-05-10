@@ -186,7 +186,7 @@ app.post('/api/admin/products', async (req, res) => {
 
 app.get('/api/admin/clients', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM clients ORDER BY created_at DESC');
+    const result = await pool.query('SELECT * FROM users WHERE role = \'user\' ORDER BY created_at DESC');
     res.json(result.rows);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
