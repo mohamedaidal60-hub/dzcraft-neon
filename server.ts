@@ -350,6 +350,21 @@ async function startServer() {
     }
   });
 
+  app.put('/api/admin/history/:id', async (req, res) => {
+    const { title, content, image_url, bg_image_url } = req.body;
+    try {
+      const { error } = await supabase
+        .from('history_posts')
+        .update({ title, content, image_url, bg_image_url })
+        .eq('id', req.params.id);
+
+      if (error) throw error;
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
   app.delete('/api/admin/history/:id', async (req, res) => {
     try {
       const { error } = await supabase.from('history_posts').delete().eq('id', req.params.id);

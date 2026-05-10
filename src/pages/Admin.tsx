@@ -38,6 +38,7 @@ export default function Admin() {
   const [aboutImageFile, setAboutImageFile] = useState<File | null>(null);
 
   const [uploading, setUploading] = useState(false);
+  const [editingHistoryId, setEditingHistoryId] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user || user.role !== 'admin') {
@@ -194,8 +195,11 @@ export default function Admin() {
         if (url) finalBgUrl = url;
       }
 
-      const res = await fetch('/api/admin/history', {
-        method: 'POST',
+      const method = editingHistoryId ? 'PUT' : 'POST';
+      const url = editingHistoryId ? `/api/admin/history/${editingHistoryId}` : '/api/admin/history';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...historyForm,
@@ -205,19 +209,31 @@ export default function Admin() {
       });
       const data = await res.json();
       if (data.success) {
-        showMessage('Article ajouté avec succès !');
+        showMessage(editingHistoryId ? 'Article mis à jour !' : 'Article ajouté avec succès !');
         setHistoryForm({ title: '', content: '', image_url: '', bg_image_url: '' });
         setHistoryFile(null);
         setHistoryBgFile(null);
+        setEditingHistoryId(null);
         fetchData();
       } else {
-        showMessage('Erreur lors de l\'ajout de l\'article.');
+        showMessage('Erreur lors de l\'enregistrement.');
       }
     } catch (err) {
       showMessage('Erreur de connexion.');
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleEditHistory = (post: any) => {
+    setHistoryForm({
+      title: post.title,
+      content: post.content,
+      image_url: post.image_url || '',
+      bg_image_url: post.bg_image_url || ''
+    });
+    setEditingHistoryId(post.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDeleteHistory = async (id: number) => {
@@ -337,8 +353,13 @@ export default function Admin() {
                   </div>
                 </div>
                 <button type="submit" disabled={uploading} className="w-full py-4 bg-stone-900 text-white font-medium rounded-xl hover:bg-stone-800 transition-colors disabled:opacity-50">
-                  {uploading ? 'Enregistrement...' : 'Publier l\'article'}
+                  {uploading ? 'Enregistrement...' : editingHistoryId ? 'Mettre à jour l\'article' : 'Publier l\'article'}
                 </button>
+                {editingHistoryId && (
+                  <button type="button" onClick={() => { setEditingHistoryId(null); setHistoryForm({ title: '', content: '', image_url: '', bg_image_url: '' }); }} className="w-full py-2 text-stone-500 hover:text-stone-700 text-sm">
+                    Annuler l'édition
+                  </button>
+                )}
               </form>
 
               <h3 className="text-xl font-serif mb-4">Articles publiés</h3>
@@ -349,9 +370,14 @@ export default function Admin() {
                       <h4 className="font-medium">{post.title}</h4>
                       <p className="text-sm text-stone-500">{new Date(post.created_at).toLocaleDateString()}</p>
                     </div>
-                    <button onClick={() => handleDeleteHistory(post.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                      <Trash2 className="w-5 h-5" />
-                    </button>
+                    <div className="flex gap-2">
+                      <button onClick={() => handleEditHistory(post)} className="p-2 text-stone-500 hover:bg-stone-50 rounded-lg transition-colors">
+                        <Plus className="w-5 h-5 rotate-45" /> {/* Use as edit icon proxy or Lucide Edit if available */}
+                      </button>
+                      <button onClick={() => handleDeleteHistory(post.id)} className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

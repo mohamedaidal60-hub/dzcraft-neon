@@ -64,7 +64,7 @@ export default function Home() {
       <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-stone-900">
           <img 
-            src="https://picsum.photos/seed/algeria/1920/1080" 
+            src="https://images.unsplash.com/photo-1541443131876-44b03de101c5?auto=format&fit=crop&q=80" 
             alt="Hero background" 
             className="w-full h-full object-cover opacity-50 mix-blend-overlay"
             referrerPolicy="no-referrer"
@@ -124,7 +124,7 @@ export default function Home() {
             <Link key={product.id} to={`/product/${product.id}`} className="group">
               <div className="aspect-[3/4] bg-stone-100 rounded-2xl overflow-hidden mb-4 relative">
                 <img 
-                  src={product.image_url || 'https://picsum.photos/seed/dz/400/600'} 
+                  src={product.image_url || 'https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?auto=format&fit=crop&q=80'} 
                   alt={product.name} 
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   referrerPolicy="no-referrer"
@@ -160,8 +160,8 @@ export default function Home() {
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <img src="https://picsum.photos/seed/dz1/400/500" alt="Atelier" className="rounded-2xl w-full h-full object-cover" referrerPolicy="no-referrer" />
-            <img src="https://picsum.photos/seed/dz2/400/500" alt="Textile" className="rounded-2xl w-full h-full object-cover mt-8" referrerPolicy="no-referrer" />
+            <img src="https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?auto=format&fit=crop&q=80" alt="Atelier" className="rounded-2xl w-full h-full object-cover" referrerPolicy="no-referrer" />
+            <img src="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&q=80" alt="Textile" className="rounded-2xl w-full h-full object-cover mt-8" referrerPolicy="no-referrer" />
           </div>
         </div>
       </section>
