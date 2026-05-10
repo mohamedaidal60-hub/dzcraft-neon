@@ -62,14 +62,18 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-       <section className="relative h-[110vh] flex items-center justify-center overflow-hidden">
-         <div className="absolute inset-0 bg-stone-900">
-           <img 
-             src={settings.hero_image_url || "https://images.unsplash.com/photo-1512412023212-f09990aa80c8?auto=format&fit=crop&q=80"} 
-             alt="Bannière" 
-             className="w-full h-full object-cover opacity-70 object-center"
-             referrerPolicy="no-referrer"
-           />
+       <section className="relative h-[80vh] flex items-center justify-center overflow-hidden bg-stone-900">
+         <div className="absolute inset-0">
+           {/* Logo en filigrane discret au centre */}
+           {settings.logo_url && (
+             <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+               <img 
+                 src={settings.logo_url} 
+                 alt="Filigrane" 
+                 className="w-[600px] h-[600px] object-contain invert grayscale" 
+               />
+             </div>
+           )}
          </div>
          <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
           <motion.h1 
