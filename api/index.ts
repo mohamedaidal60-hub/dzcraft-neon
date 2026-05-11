@@ -166,6 +166,15 @@ app.post('/api/admin/ai-generate', async (req, res) => {
   res.json({ success: true, description });
 });
 
+app.get('/api/admin/products', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY p.created_at DESC');
+    res.json(result.rows);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.post('/api/admin/products', async (req, res) => {
   const { name, slug, description, price, category_id, image_url, target_group } = req.body;
   try {
@@ -174,6 +183,30 @@ app.post('/api/admin/products', async (req, res) => {
       [name, slug, description, parseFloat(price), category_id, image_url, target_group]
     );
     res.json({ success: true, id: result.rows[0].id });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.put('/api/admin/products/:id', async (req, res) => {
+  const { name, slug, description, price, category_id, image_url, target_group } = req.body;
+  try {
+    await pool.query(
+      'UPDATE products SET name = $1, slug = $2, description = $3, price = $4, category_id = $5, image_url = $6, target_group = $7 WHERE id = $8',
+      [name, slug, description, parseFloat(price), category_id, image_url, target_group, req.params.id]
+    );
+    res.json({ success: true });
+  } catch (error: any) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.delete('/api/admin/products/:id', async (req, res) => {
+  try {
+    // Delete variants first
+    await pool.query('DELETE FROM variants WHERE product_id = $1', [req.params.id]);
+    await pool.query('DELETE FROM products WHERE id = $1', [req.params.id]);
+    res.json({ success: true });
   } catch (error: any) {
     res.status(500).json({ success: false, error: error.message });
   }

@@ -64,14 +64,22 @@ export default function Home() {
            )}
          </div>
          <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
-          <motion.h1 
+           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-             className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-sans font-semibold mb-6 tracking-tight uppercase"
+             className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-sans font-semibold mb-2 tracking-tight uppercase"
            >
-             LA PREMIÈRE BOUTIQUE CADEAU DES ALGÉRIENS
+             {settings.hero_title || "La première boutique de cadeaux des Algériens"}
            </motion.h1>
+           <motion.div
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             transition={{ delay: 0.3 }}
+             className="text-emerald-500 font-medium tracking-widest text-sm mb-6 uppercase"
+           >
+             Boutique Virtuelle
+           </motion.div>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

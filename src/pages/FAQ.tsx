@@ -19,10 +19,7 @@ const faqs = [
     q: "Comment suivre ma commande ?",
     a: "Dès que votre commande est expédiée, vous recevez un email avec un numéro de suivi (Mondial Relay, Colis Privé ou Lettre Suivie) vous permettant de suivre votre colis en temps réel."
   },
-  {
-    q: "Proposez-vous le paiement à la livraison ?",
-    a: "Non, toutes les commandes sont payables au moment de la validation sur notre site via virement bancaire ou Paypal. Cela nous permet de garantir une expédition rapide et sécurisée."
-  }
+
 ];
 
 export default function FAQ() {

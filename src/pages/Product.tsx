@@ -9,8 +9,7 @@ export default function Product() {
   const navigate = useNavigate();
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [added, setAdded] = useState(false);
   const addToCart = useStore(state => state.addToCart);
 
@@ -24,10 +23,13 @@ export default function Product() {
         setProduct(data);
         setLoading(false);
         if (data.variants && data.variants.length > 0) {
-          const sizes = [...new Set(data.variants.map((v: any) => v.size).filter(Boolean))];
-          const colors = [...new Set(data.variants.map((v: any) => v.color).filter(Boolean))];
-          if (sizes.length > 0) setSelectedSize(sizes[0] as string);
-          if (colors.length > 0) setSelectedColor(colors[0] as string);
+          const initialVariants: Record<string, string> = {};
+          const types = [...new Set(data.variants.map((v: any) => v.type))];
+          types.forEach((type: any) => {
+            const firstVal = data.variants.find((v: any) => v.type === type)?.value;
+            if (firstVal) initialVariants[type] = firstVal;
+          });
+          setSelectedVariants(initialVariants);
         }
       })
       .catch(() => {
@@ -43,8 +45,7 @@ export default function Product() {
       name: product.name,
       price: product.price,
       quantity: 1,
-      size: selectedSize || undefined,
-      color: selectedColor || undefined,
+      variant_details: selectedVariants,
       image_url: product.image_url
     });
     
@@ -66,8 +67,11 @@ export default function Product() {
     );
   }
 
-  const sizes = product.variants ? [...new Set(product.variants.map((v: any) => v.size).filter(Boolean))] : [];
-  const colors = product.variants ? [...new Set(product.variants.map((v: any) => v.color).filter(Boolean))] : [];
+  const variantGroups = product.variants ? product.variants.reduce((acc: any, v: any) => {
+    if (!acc[v.type]) acc[v.type] = [];
+    acc[v.type].push(v.value);
+    return acc;
+  }, {}) : {};
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24">
@@ -104,69 +108,49 @@ export default function Product() {
             <p>{product.description}</p>
           </div>
 
-          {sizes.length > 0 && (
-            <div className="mb-8">
-              <div className="flex justify-between items-center mb-4">
-                <span className="font-medium">Taille</span>
-                <span className="text-sm text-stone-500 underline cursor-pointer hover:text-stone-900">Guide des tailles</span>
-              </div>
-              <div className="grid grid-cols-4 gap-3">
-                {sizes.map((size: any) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`py-3 border rounded-xl font-medium transition-all ${
-                      selectedSize === size 
-                        ? 'border-stone-900 bg-stone-900 text-white' 
-                        : 'border-stone-200 hover:border-stone-900 text-stone-900'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
+          {Object.entries(variantGroups).map(([type, values]: [string, any]) => (
+            <div key={type} className="mb-8">
+              <label className="block text-sm font-medium text-stone-700 mb-3">
+                Choisir {type}
+              </label>
+              <div className="relative">
+                <select
+                  value={selectedVariants[type]}
+                  onChange={(e) => setSelectedVariants(prev => ({ ...prev, [type]: e.target.value }))}
+                  className="w-full pl-4 pr-10 py-4 bg-white border border-stone-200 rounded-2xl appearance-none focus:outline-none focus:ring-2 focus:ring-stone-900 focus:border-transparent transition-all cursor-pointer"
+                >
+                  {values.map((val: string) => (
+                    <option key={val} value={val}>{val}</option>
+                  ))}
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                  <ChevronDown className="w-5 h-5 text-stone-400" />
+                </div>
               </div>
             </div>
-          )}
-
-          {colors.length > 0 && (
-            <div className="mb-12">
-              <span className="font-medium block mb-4">Couleur</span>
-              <div className="flex gap-3">
-                {colors.map((color: any) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`px-6 py-3 border rounded-xl font-medium transition-all ${
-                      selectedColor === color 
-                        ? 'border-stone-900 bg-stone-900 text-white' 
-                        : 'border-stone-200 hover:border-stone-900 text-stone-900'
-                    }`}
-                  >
-                    {color}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+          ))}
 
           <button
             onClick={handleAddToCart}
-            className={`w-full py-5 rounded-2xl font-medium text-lg flex items-center justify-center transition-all ${
+            disabled={added}
+            className={`w-full py-5 rounded-2xl font-semibold text-lg flex items-center justify-center gap-3 transition-all transform active:scale-[0.98] ${
               added 
-                ? 'bg-emerald-600 text-white' 
-                : 'bg-stone-900 text-white hover:bg-stone-800 shadow-xl shadow-stone-900/20'
+                ? 'bg-emerald-500 text-white' 
+                : 'bg-stone-900 text-white hover:bg-stone-800 shadow-xl hover:shadow-2xl'
             }`}
           >
             {added ? (
               <>
-                <Check className="w-5 h-5 mr-2" /> Ajouté au panier
+                <Check className="w-6 h-6" /> Ajouté au panier
               </>
             ) : (
               <>
-                <ShoppingBag className="w-5 h-5 mr-2" /> Ajouter au panier
+                <ShoppingBag className="w-6 h-6" /> Ajouter au panier
               </>
             )}
           </button>
+
+
 
           <div className="mt-12 pt-8 border-t border-stone-200 grid grid-cols-2 gap-8 text-sm text-stone-500">
             <div>

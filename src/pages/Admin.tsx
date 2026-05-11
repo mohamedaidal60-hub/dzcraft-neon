@@ -23,9 +23,11 @@ export default function Admin() {
     name: '', slug: '', description: '', price: '', category_id: '', image_url: '',
     target_group: [] as string[]
   });
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
 
    const [settingsForm, setSettingsForm] = useState({
-     logo_url: '', watermark_url: '', about_text: '', about_image_url: '', hero_image_url: ''
+     logo_url: '', watermark_url: '', about_text: '', about_image_url: '', hero_image_url: '', hero_title: ''
    });
 
   const [historyForm, setHistoryForm] = useState({
@@ -53,17 +55,19 @@ export default function Admin() {
         watermark_url: settings.watermark_url || '',
         about_text: settings.about_text || '',
         about_image_url: settings.about_image_url || '',
-        hero_image_url: settings.hero_image_url || ''
+        hero_image_url: settings.hero_image_url || '',
+        hero_title: settings.hero_title || ''
       });
     }
   }, [user, navigate, settings]);
 
   const fetchData = async () => {
-    const [catRes, cliRes, ordRes, histRes] = await Promise.all([
+    const [catRes, cliRes, ordRes, histRes, prodRes] = await Promise.all([
       fetch('/api/categories'),
       fetch('/api/admin/clients'),
       fetch('/api/admin/orders'),
-      fetch('/api/history')
+      fetch('/api/history'),
+      fetch('/api/admin/products')
     ]);
 
     const catData = await catRes.json();
@@ -75,6 +79,7 @@ export default function Admin() {
     setClients(await cliRes.json());
     setOrders(await ordRes.json());
     setHistoryPosts(await histRes.json());
+    setProducts(await prodRes.json());
   };
 
   const handleLogout = () => {
@@ -149,8 +154,11 @@ export default function Admin() {
         if (url) finalImageUrl = url;
       }
 
-      const res = await fetch('/api/admin/products', {
-        method: 'POST',
+      const method = editingProductId ? 'PUT' : 'POST';
+      const url = editingProductId ? `/api/admin/products/${editingProductId}` : '/api/admin/products';
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...productForm,
@@ -161,19 +169,48 @@ export default function Admin() {
       });
       const data = await res.json();
       if (data.success) {
-        showMessage('Produit ajouté avec succès !');
+        showMessage(editingProductId ? 'Produit mis à jour !' : 'Produit ajouté avec succès !');
         setProductForm({ 
           name: '', slug: '', description: '', price: '', category_id: categories[0]?.id.toString() || '', image_url: '',
           target_group: []
         });
         setProductFile(null);
+        setEditingProductId(null);
+        fetchData();
       } else {
-        showMessage('Erreur lors de l\'ajout du produit.');
+        showMessage('Erreur lors de l\'enregistrement.');
       }
     } catch (err) {
       showMessage('Erreur de connexion.');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleEditProduct = (product: any) => {
+    setProductForm({
+      name: product.name,
+      slug: product.slug,
+      description: product.description,
+      price: product.price.toString(),
+      category_id: product.category_id.toString(),
+      image_url: product.image_url || '',
+      target_group: product.target_group || []
+    });
+    setEditingProductId(product.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDeleteProduct = async (id: number) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) return;
+    try {
+      const res = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+      if ((await res.json()).success) {
+        fetchData();
+        showMessage('Produit supprimé.');
+      }
+    } catch (err) {
+      showMessage('Erreur lors de la suppression.');
     }
   };
 
@@ -388,10 +425,44 @@ export default function Admin() {
                     </div>
                   </div>
                 </div>
-                <button type="submit" disabled={uploading} className="w-full py-4 bg-stone-900 text-white font-medium rounded-xl hover:bg-stone-800 transition-colors disabled:opacity-50">
-                  {uploading ? 'Enregistrement...' : 'Ajouter le produit'}
-                </button>
+                <div className="flex gap-4">
+                  <button type="submit" disabled={uploading} className="flex-grow py-4 bg-stone-900 text-white font-medium rounded-xl hover:bg-stone-800 transition-colors disabled:opacity-50">
+                    {uploading ? 'Enregistrement...' : editingProductId ? 'Mettre à jour' : 'Ajouter le produit'}
+                  </button>
+                  {editingProductId && (
+                    <button type="button" onClick={() => { setEditingProductId(null); setProductForm({ name: '', slug: '', description: '', price: '', category_id: categories[0]?.id.toString(), image_url: '', target_group: [] }); }} className="px-8 py-4 bg-stone-100 text-stone-600 font-medium rounded-xl hover:bg-stone-200 transition-colors">
+                      Annuler
+                    </button>
+                  )}
+                </div>
               </form>
+
+              <div className="mt-16 pt-8 border-t border-stone-100">
+                <h3 className="text-xl font-serif mb-6">Liste des produits</h3>
+                <div className="space-y-4">
+                  {products.map((p: any) => (
+                    <div key={p.id} className="flex items-center justify-between p-4 border border-stone-100 rounded-2xl hover:bg-stone-50 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-lg bg-stone-100 overflow-hidden">
+                          <img src={p.image_url} alt={p.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div>
+                          <p className="font-medium">{p.name}</p>
+                          <p className="text-sm text-stone-500">{p.price} € - {p.category_name}</p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => handleEditProduct(p)} className="p-2 text-stone-400 hover:text-stone-900 transition-colors">
+                          <Settings className="w-5 h-5" />
+                        </button>
+                        <button onClick={() => handleDeleteProduct(p.id)} className="p-2 text-stone-400 hover:text-red-600 transition-colors">
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </motion.div>
           )}
 
@@ -561,8 +632,12 @@ export default function Admin() {
           )}
           {activeTab === 'settings' && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <h2 className="text-2xl font-serif mb-6">Paramètres du site</h2>
+              <h2 className="text-2xl font-serif mb-6">Réglages du site</h2>
               <form onSubmit={handleSettingsSubmit} className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Titre d'accueil (Hero Title)</label>
+                  <input type="text" value={settingsForm.hero_title} onChange={e => setSettingsForm({ ...settingsForm, hero_title: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" placeholder="La première boutique de cadeaux des Algériens" />
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-stone-700 mb-2">Logo du site</label>
                   <input type="file" accept="image/*" onChange={e => setLogoFile(e.target.files?.[0] || null)} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500 bg-white" />
