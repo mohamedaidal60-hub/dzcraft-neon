@@ -5,13 +5,18 @@ import { emailService } from './email.js';
 
 dotenv.config();
 
-const { Pool } = pg;
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
+let pool: pg.Pool;
+
+try {
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false
+    }
+  });
+} catch (e) {
+  console.error("Failed to initialize pool", e);
+}
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
