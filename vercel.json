@@ -10,6 +10,18 @@
             "destination": "/api/categories.ts"
         },
         {
+            "source": "/api/run-seed",
+            "destination": "/api/run-seed.ts"
+        },
+        {
+            "source": "/api/count",
+            "destination": "/api/count.ts"
+        },
+        {
+            "source": "/api/debug",
+            "destination": "/api/debug.ts"
+        },
+        {
             "source": "/api/(.*)",
             "destination": "/api/index.ts"
         },
