@@ -22,6 +22,10 @@
             "destination": "/api/debug.ts"
         },
         {
+            "source": "/api/migrate-db",
+            "destination": "/api/migrate-db.ts"
+        },
+        {
             "source": "/api/(.*)",
             "destination": "/api/index.ts"
         },
