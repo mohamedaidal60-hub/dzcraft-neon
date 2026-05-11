@@ -23,18 +23,16 @@ export default async function (req: any, res: any) {
     `);
 
     // Products
-    const bodyRes = await client.query(`
-      INSERT INTO products (name, slug, description, price, category_id, image_url, target_group) 
-      VALUES ('Body Bébé Personnalisé', 'body-bebe-personnalise', 'Offrez à votre bébé un body unique avec une touche d\'humour et de fierté algérienne.', 19.90, 3, '/images/bb3.jpg', ARRAY['Bébé'])
-      RETURNING id
-    `);
+    const bodyRes = await client.query(
+      'INSERT INTO products (name, slug, description, price, category_id, image_url, target_group) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      ['Body Bébé Personnalisé', 'body-bebe-personnalise', "Offrez à votre bébé un body unique avec une touche d'humour et de fierté algérienne.", 19.90, 3, '/images/bb3.jpg', ['Bébé']]
+    );
     const bodyId = bodyRes.rows[0].id;
 
-    const mugRes = await client.query(`
-      INSERT INTO products (name, slug, description, price, category_id, image_url, target_group) 
-      VALUES ('Mug Wilaya Personnalisé', 'mug-wilaya-personnalise', 'Le mug parfait pour votre café du matin, affichant fièrement votre wilaya d\'origine.', 15.90, 4, '/images/mug_wilaya_1.jpg', ARRAY['Accessoire'])
-      RETURNING id
-    `);
+    const mugRes = await client.query(
+      'INSERT INTO products (name, slug, description, price, category_id, image_url, target_group) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      ['Mug Wilaya Personnalisé', 'mug-wilaya-personnalise', "Le mug parfait pour votre café du matin, affichant fièrement votre wilaya d'origine.", 15.90, 4, '/images/mug_wilaya_1.jpg', ['Accessoire']]
+    );
     const mugId = mugRes.rows[0].id;
 
     // Variants for Body
