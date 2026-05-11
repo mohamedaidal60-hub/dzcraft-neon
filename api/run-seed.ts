@@ -35,6 +35,12 @@ export default async function (req: any, res: any) {
     );
     const mugId = mugRes.rows[0].id;
 
+    const passportRes = await client.query(
+      'INSERT INTO products (name, slug, description, price, category_id, image_url, target_group) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      ['Protège Passeport Karakou', 'protege-passeport-karakou', "Gardez votre passeport en sécurité avec style. Un design inspiré du Karakou algérien.", 14.90, 4, '/images/passport_karakou.jpg', ['Accessoire']]
+    );
+    const passportId = passportRes.rows[0].id;
+
     // Variants for Body
     const bodyOptions = ['Mon père', 'Ma mère', 'Ma tata', 'Mon tonton', 'Ma grand mère'];
     for (const option of bodyOptions) {
@@ -50,6 +56,25 @@ export default async function (req: any, res: any) {
     for (const w of wilayas) {
       await client.query('INSERT INTO variants (product_id, type, value) VALUES ($1, $2, $3)', [mugId, 'Wilaya', w]);
     }
+
+    // History Posts (Le saviez-vous)
+    await client.query(`
+      INSERT INTO history_posts (title, content, image_url) VALUES 
+      ('L''Émir Abdelkader', 'Héros national et fondateur de l''État algérien moderne, il a mené la résistance contre l''invasion française pendant plus de 15 ans. Un homme de foi, de culture et d''humanisme.', 'https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?auto=format&fit=crop&q=80'),
+      ('Le Karakou Algérois', 'Vêtement traditionnel algérois d''exception, le Karakou est une veste en velours finement brodée au fil d''or (majboub ou fetla). Il symbolise l''élégance et le savoir-faire ancestral.', 'https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&q=80'),
+      ('L''Héritage des Berbères', 'La culture berbère (Amazigh) est au cœur de l''identité algérienne. Des bijoux en argent de Kabylie aux tapis du M''Zab, chaque motif raconte une légende millénaire.', 'https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?auto=format&fit=crop&q=80')
+    `);
+
+    // Settings
+    await client.query(`
+      INSERT INTO settings (key, value) VALUES 
+      ('hero_title', 'La première boutique de cadeaux des Algériens'),
+      ('site_name', 'DZCRAFTDESIGN'),
+      ('contact_email', 'contact@dzcd.fr'),
+      ('hero_image_url', 'https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&q=80'),
+      ('about_image_url', 'https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?auto=format&fit=crop&q=80')
+      ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+    `);
 
     await client.query('COMMIT');
     res.json({ success: true, message: 'Database seeded on live site!' });

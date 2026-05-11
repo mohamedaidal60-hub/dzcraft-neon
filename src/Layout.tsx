@@ -12,7 +12,7 @@ const Logo = ({ url, variant = 'light' }: { url?: string, variant?: 'light' | 'd
        <img 
          src={url} 
          alt="DZCRAFTDESIGN" 
-         className={`h-16 sm:h-24 md:h-32 object-contain ${variant === 'light' ? 'mix-blend-multiply contrast-[1.1] brightness-[1.05]' : 'invert mix-blend-screen'}`} 
+         className={`h-16 sm:h-24 md:h-32 object-contain ${variant === 'light' ? 'mix-blend-multiply contrast-125 brightness-100 grayscale' : 'invert mix-blend-screen'}`} 
        />
     ) : (
       <div className={variant === 'dark' ? 'text-white' : 'text-stone-900'}>
