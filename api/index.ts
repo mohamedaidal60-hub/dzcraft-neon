@@ -74,7 +74,7 @@ app.post('/api/auth/register', async (req, res) => {
     const user = result.rows[0];
     
     // Send Welcome Email
-    await emailService.sendWelcomeEmail(email, `${first_name} ${last_name}`);
+    // await emailService.sendWelcomeEmail(email, `${first_name} ${last_name}`);
     
     res.json({ success: true, user });
   } catch (error: any) {
@@ -285,7 +285,7 @@ app.post('/api/orders', async (req, res) => {
     const user = userResult.rows[0];
     
     if (user && user.email) {
-      await emailService.sendOrderConfirmation(user.email, {
+      // await emailService.sendOrderConfirmation(user.email, {
         name: `${user.first_name} ${user.last_name}`,
         orderId: orderId,
         total: total_amount,
@@ -340,7 +340,7 @@ app.post('/api/admin/orders/:id/tracking', async (req, res) => {
     
     const order = result.rows[0];
     if (order && order.email) {
-      await emailService.sendTrackingEmail(order.email, {
+      // await emailService.sendTrackingEmail(order.email, {
         name: `${order.first_name} ${order.last_name}`,
         orderId: orderId,
         trackingNumber: tracking_number,
