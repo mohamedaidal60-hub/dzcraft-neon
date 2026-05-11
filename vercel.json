@@ -18,6 +18,10 @@
             "destination": "/api/products/[id].ts"
         },
         {
+            "source": "/api/clean-db",
+            "destination": "/api/clean-db.ts"
+        },
+        {
             "source": "/api/categories",
             "destination": "/api/categories.ts"
         },
