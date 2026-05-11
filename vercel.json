@@ -2,6 +2,14 @@
     "framework": "vite",
     "rewrites": [
         {
+            "source": "/api/products",
+            "destination": "/api/products.ts"
+        },
+        {
+            "source": "/api/categories",
+            "destination": "/api/categories.ts"
+        },
+        {
             "source": "/api/(.*)",
             "destination": "/api/index.ts"
         },
