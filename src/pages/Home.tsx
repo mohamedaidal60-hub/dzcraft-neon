@@ -170,51 +170,24 @@ export default function Home() {
       </section>
 
       {/* Story Teaser */}
-      <section className="bg-stone-900 text-white py-24 overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-1/3 h-full bg-emerald-600/5 blur-[120px] rounded-full pointer-events-none" />
+      <section className="bg-stone-900 text-white py-24 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-16 items-center">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 1, ease: "easeOut" }}
+            transition={{ duration: 1 }}
           >
-            <motion.div 
-              initial={{ width: 0 }}
-              whileInView={{ width: "80px" }}
-              viewport={{ once: true }}
-              transition={{ duration: 1, delay: 0.5 }}
-              className="h-1 bg-emerald-500 mb-8"
-            />
-            <h2 className="text-4xl md:text-5xl font-serif mb-8 uppercase tracking-tight leading-tight">
-              NOTRE HISTOIRE, <br/>
-              <span className="text-emerald-500 relative inline-block">
-                NOTRE IDENTITÉ
-                <motion.svg 
-                  initial={{ pathLength: 0 }}
-                  whileInView={{ pathLength: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1, delay: 1 }}
-                  className="absolute -bottom-2 left-0 w-full h-2 text-emerald-500/30" viewBox="0 0 100 10" preserveAspectRatio="none"
-                >
-                  <path d="M0 5 Q 25 0, 50 5 T 100 5" fill="none" stroke="currentColor" strokeWidth="2" />
-                </motion.svg>
-              </span>
-            </h2>
-            <p className="text-stone-400 text-lg mb-10 leading-relaxed max-w-md font-light">
+            <h2 className="text-4xl font-serif mb-6 uppercase tracking-tight">NOTRE HISTOIRE, <br/><span className="text-emerald-500">NOTRE IDENTITÉ</span></h2>
+            <p className="text-stone-400 text-lg mb-10 leading-relaxed max-w-md">
               DZCRAFTDESIGN imagine des créations modernes inspirées de la culture algérienne, entre héritage, identité et mémoire. Chaque pièce est une invitation au voyage.
             </p>
-            <Link to="/qui-suis-je" className="group inline-flex items-center gap-3 px-10 py-5 bg-white text-stone-900 rounded-full hover:bg-emerald-500 hover:text-white transition-all duration-500 font-medium">
+            <Link to="/qui-suis-je" className="group inline-flex items-center gap-3 px-8 py-4 border border-stone-700 rounded-full hover:bg-white hover:text-stone-900 transition-all duration-500">
               Découvrir notre histoire 
-              <motion.span 
-                animate={{ x: [0, 5, 0] }}
-                transition={{ repeat: Infinity, duration: 1.5 }}
-              >
-                &rarr;
-              </motion.span>
+              <span className="group-hover:translate-x-2 transition-transform duration-500">&rarr;</span>
             </Link>
           </motion.div>
-          <div className="grid grid-cols-2 gap-6 relative">
+          <div className="grid grid-cols-2 gap-6">
             <motion.div
               initial={{ opacity: 0, y: 100 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -222,13 +195,13 @@ export default function Home() {
               transition={{ duration: 1, delay: 0.2 }}
               className="relative pt-12"
             >
-              <div className="absolute inset-0 bg-emerald-600/20 blur-3xl rounded-full scale-75 -z-10" />
               <img 
                 src={settings.about_image_url || "https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?auto=format&fit=crop&q=80"} 
                 alt="Histoire 1" 
-                className="rounded-[2.5rem] w-full aspect-[3/4] object-cover shadow-2xl border border-white/10" 
+                className="rounded-3xl w-full aspect-[3/4] object-cover shadow-2xl" 
                 referrerPolicy="no-referrer" 
               />
+              <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-emerald-600 rounded-full opacity-20 blur-2xl" />
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: -100 }}
@@ -239,7 +212,7 @@ export default function Home() {
               <img 
                 src={settings.hero_image_url || "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&q=80"} 
                 alt="Histoire 2" 
-                className="rounded-[2.5rem] w-full aspect-[3/4] object-cover shadow-2xl border border-white/10" 
+                className="rounded-3xl w-full aspect-[3/4] object-cover shadow-2xl" 
                 referrerPolicy="no-referrer" 
               />
             </motion.div>
