@@ -54,7 +54,7 @@ export default function ShippingPolicy() {
             <Truck className="w-12 h-12 text-emerald-600 mx-auto mb-4" />
             <h3 className="text-xl font-serif text-emerald-900 mb-2">Un détail qui fait la différence</h3>
             <p className="text-sm text-emerald-800 max-w-lg mx-auto">
-              Chaque pièce est créée par une Algérienne pour les Algériens, avec une attention particulière portée à chaque finition.
+              Créé par une Algérienne pour les Algériens.
             </p>
           </div>
         </div>
