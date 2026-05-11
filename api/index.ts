@@ -1,6 +1,6 @@
 import express from 'express';
 import pkg from 'pg';
-import { emailService } from './email';
+// import { emailService } from './email';
 
 const { Pool } = pkg;
 
