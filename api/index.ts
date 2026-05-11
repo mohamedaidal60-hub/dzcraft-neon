@@ -17,14 +17,22 @@ const app = express();
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-// API Routes
+app.get('/api/debug-env', (req, res) => {
+  res.json({
+    hasDbUrl: !!process.env.DATABASE_URL,
+    dbUrlPrefix: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 15) : 'none',
+    nodeEnv: process.env.NODE_ENV
+  });
+});
+
 app.get('/api/health', async (req, res) => {
   try {
     const client = await pool.connect();
-    res.json({ status: 'ok', database: 'neon' });
+    const result = await client.query('SELECT NOW()');
+    res.json({ status: 'ok', database: 'neon', time: result.rows[0] });
     client.release();
   } catch (err: any) {
-    res.status(500).json({ status: 'error', error: err.message });
+    res.status(500).json({ status: 'error', message: 'DB connection failed', detail: err.message });
   }
 });
 

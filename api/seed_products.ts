@@ -35,6 +35,14 @@ async function addProducts() {
         [bodyId, 'Texte', option]
       );
     }
+    
+    const bodySizes = ['0-3 mois', '3-6 mois', '6-12 mois', '12-18 mois'];
+    for (const size of bodySizes) {
+      await client.query(
+        'INSERT INTO variants (product_id, type, value) VALUES ($1, $2, $3)',
+        [bodyId, 'Taille', size]
+      );
+    }
 
     // 2. Mug Wilaya
     const mugRes = await client.query(
