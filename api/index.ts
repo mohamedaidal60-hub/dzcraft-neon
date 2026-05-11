@@ -1,11 +1,9 @@
 import express from 'express';
-import pg from 'pg';
-import dotenv from 'dotenv';
+import pkg from 'pg';
 import { emailService } from './email';
 
-dotenv.config();
+const { Pool } = pkg;
 
-const { Pool } = pg;
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
