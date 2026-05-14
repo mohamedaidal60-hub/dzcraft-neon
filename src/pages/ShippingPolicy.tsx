@@ -21,14 +21,14 @@ export default function ShippingPolicy() {
               </h2>
               <p>Nous livrons partout en Europe via les meilleurs réseaux de transport.</p>
               <ul className="list-disc pl-6 mt-4 space-y-2 text-sm">
-                <li><strong>France & Belgique</strong> : 3 à 5 jours ouvrés via Mondial Relay ou Domicile.</li>
-                <li><strong>Reste de l'Europe</strong> : 5 à 8 jours ouvrés selon la destination.</li>
+                <li><strong>France & Belgique</strong> : 3 à 5 jours ouvrés via Mondial Relay.</li>
+                <li><strong>Reste de l'Europe</strong> : 5 à 8 jours ouvrés via Lettre Suivie.</li>
                 <li><strong>Suivi</strong> : Un numéro de suivi vous est communiqué dès l'expédition.</li>
               </ul>
             </div>
             <div className="bg-stone-50 p-6 rounded-2xl border border-stone-100">
               <h3 className="font-bold text-stone-900 mb-2">Modes de livraison</h3>
-              <p className="text-sm">Nous proposons la livraison en Point Relais (Mondial Relay) ou directement à votre domicile via Lettre Suivie ou Colis privé.</p>
+              <p className="text-sm">Nous proposons la livraison en Point Relais (Mondial Relay) ou via Lettre Suivie pour les articles éligibles.</p>
             </div>
           </section>
 

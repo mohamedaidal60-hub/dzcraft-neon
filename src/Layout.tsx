@@ -38,7 +38,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const cartTotal = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+  const cartTotal = cart.reduce((total, item) => total + parseFloat(String(item.price).replace(',', '.') || '0') * item.quantity, 0);
 
   // Cross-selling logic
   const crossSellProducts = (products || []).filter(p => !cart.some(c => c.id === p.id)).slice(0, 2);
@@ -148,7 +148,7 @@ export default function Layout() {
               <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" /></svg>
             </div>
             <h4 className="font-medium font-serif mb-1">Livraison en Europe</h4>
-            <p className="text-xs text-stone-500">Expédition rapide à domicile ou en point relais.</p>
+            <p className="text-xs text-stone-500">Expédition rapide via Mondial Relay ou Lettre Suivie.</p>
           </div>
         </div>
       </div>
@@ -317,7 +317,7 @@ export default function Layout() {
                             </p>
                           </div>
                           <div className="flex justify-between items-center mt-2">
-                            <div className="text-sm font-medium">{item.price.toFixed(2)} €</div>
+                            <div className="text-sm font-medium">{Number(item.price).toFixed(2)} €</div>
                             <div className="flex items-center gap-2 text-sm">
                               <span className="text-stone-500">Qté: {item.quantity}</span>
                             </div>
@@ -336,7 +336,7 @@ export default function Layout() {
                               <img src={p.image_url || 'https://picsum.photos/seed/dz/100/100'} alt={p.name} className="w-12 h-12 object-cover rounded-md" />
                               <div className="flex-1">
                                 <h5 className="text-xs font-medium">{p.name}</h5>
-                                <p className="text-xs text-emerald-600 font-medium">{p.price.toFixed(2)} €</p>
+                                <p className="text-xs text-emerald-600 font-medium">{Number(p.price).toFixed(2)} €</p>
                               </div>
                               <button 
                                 onClick={() => {

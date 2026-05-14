@@ -196,7 +196,7 @@ export default function Home() {
               className="relative pt-12"
             >
               <img 
-                src={settings.about_image_url || "https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?auto=format&fit=crop&q=80"} 
+                src={settings.about_image || "https://images.unsplash.com/photo-1590073242678-70ee3fc28e8e?auto=format&fit=crop&q=80"} 
                 alt="Histoire 1" 
                 className="rounded-3xl w-full aspect-[3/4] object-cover shadow-2xl" 
                 referrerPolicy="no-referrer" 
@@ -210,7 +210,7 @@ export default function Home() {
               transition={{ duration: 1, delay: 0.4 }}
             >
               <img 
-                src={settings.hero_image_url || "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&q=80"} 
+                src={settings.hero_image || "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&q=80"} 
                 alt="Histoire 2" 
                 className="rounded-3xl w-full aspect-[3/4] object-cover shadow-2xl" 
                 referrerPolicy="no-referrer" 

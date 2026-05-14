@@ -26,9 +26,19 @@ export default function Admin() {
   const [editingProductId, setEditingProductId] = useState<number | null>(null);
   const [products, setProducts] = useState<any[]>([]);
 
-   const [settingsForm, setSettingsForm] = useState({
-     logo_url: '', watermark_url: '', about_text: '', about_image_url: '', hero_image_url: '', hero_title: ''
-   });
+    const [settingsForm, setSettingsForm] = useState({
+      logo_url: '', 
+      watermark_url: '', 
+      about_body: '', 
+      about_image: '', 
+      hero_image: '', 
+      hero_title: '',
+      hero_subtitle: '',
+      contact_email: '',
+      whatsapp_number: '',
+      instagram_url: '',
+      tiktok_url: ''
+    });
 
   const [historyForm, setHistoryForm] = useState({
     title: '', content: '', image_url: '', bg_image_url: ''
@@ -53,10 +63,15 @@ export default function Admin() {
       setSettingsForm({
         logo_url: settings.logo_url || '',
         watermark_url: settings.watermark_url || '',
-        about_text: settings.about_text || '',
-        about_image_url: settings.about_image_url || '',
-        hero_image_url: settings.hero_image_url || '',
-        hero_title: settings.hero_title || ''
+        about_body: settings.about_body || '',
+        about_image: settings.about_image || '',
+        hero_image: settings.hero_image || '',
+        hero_title: settings.hero_title || '',
+        hero_subtitle: settings.hero_subtitle || '',
+        contact_email: settings.contact_email || '',
+        whatsapp_number: settings.whatsapp_number || '',
+        instagram_url: settings.instagram_url || '',
+        tiktok_url: settings.tiktok_url || ''
       });
     }
   }, [user, navigate, settings]);
@@ -120,21 +135,56 @@ export default function Admin() {
     setTimeout(() => setMessage(''), 3000);
   };
 
+  const compressImage = async (base64Str: string, maxWidth = 1920, maxHeight = 1080, quality = 0.7): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = base64Str;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+    });
+  };
+
   const uploadImage = async (file: File | null): Promise<string | null> => {
     if (!file) return null;
     
-    // Check file size (max 4MB for Vercel)
-    if (file.size > 4 * 1024 * 1024) {
-      alert('Image trop grande (max 4MB). Veuillez compresser votre image.');
+    // Check file size (max 10MB before compression)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Fichier trop lourd (max 10MB).');
       return null;
     }
 
-    // Convert to Base64 directly in browser - no server needed
     return new Promise((resolve) => {
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         const base64 = reader.result as string;
-        resolve(base64); // base64 = "data:image/jpeg;base64,..."
+        // Compress if likely to exceed Vercel's 4.5MB limit (base64 is ~1.3x larger than binary)
+        if (base64.length > 3 * 1024 * 1024) {
+          const compressed = await compressImage(base64);
+          resolve(compressed);
+        } else {
+          resolve(base64);
+        }
       };
       reader.onerror = () => {
         alert('Erreur lors de la lecture du fichier.');
@@ -226,7 +276,7 @@ export default function Admin() {
       }
       if (heroFile) {
         const url = await uploadImage(heroFile);
-        if (url) newSettings.hero_image_url = url;
+        if (url) newSettings.hero_image = url;
       }
       if (watermarkFile) {
         const url = await uploadImage(watermarkFile);
@@ -234,7 +284,7 @@ export default function Admin() {
       }
       if (aboutImageFile) {
         const url = await uploadImage(aboutImageFile);
-        if (url) newSettings.about_image_url = url;
+        if (url) newSettings.about_image = url;
       }
 
       const res = await fetch('/api/admin/settings', {
@@ -639,29 +689,47 @@ export default function Admin() {
                   <input type="text" value={settingsForm.hero_title} onChange={e => setSettingsForm({ ...settingsForm, hero_title: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" placeholder="La première boutique de cadeaux des Algériens" />
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Sous-titre d'accueil (Hero Subtitle)</label>
+                  <input type="text" value={settingsForm.hero_subtitle} onChange={e => setSettingsForm({ ...settingsForm, hero_subtitle: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Email de contact</label>
+                  <input type="email" value={settingsForm.contact_email} onChange={e => setSettingsForm({ ...settingsForm, contact_email: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-stone-700 mb-2">WhatsApp</label>
+                    <input type="text" value={settingsForm.whatsapp_number} onChange={e => setSettingsForm({ ...settingsForm, whatsapp_number: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-stone-700 mb-2">Instagram URL</label>
+                    <input type="text" value={settingsForm.instagram_url} onChange={e => setSettingsForm({ ...settingsForm, instagram_url: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
+                  </div>
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-stone-700 mb-2">Logo du site</label>
                   <input type="file" accept="image/*" onChange={e => setLogoFile(e.target.files?.[0] || null)} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500 bg-white" />
-                  {settingsForm.logo_url && !logoFile && <p className="text-xs text-stone-500 mt-2">Image actuelle : {settingsForm.logo_url}</p>}
+                  {settingsForm.logo_url && !logoFile && <p className="text-xs text-stone-500 mt-2">Image actuelle présente</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-stone-700 mb-2">Filigrane (Watermark)</label>
                   <input type="file" accept="image/*" onChange={e => setWatermarkFile(e.target.files?.[0] || null)} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500 bg-white" />
-                  {settingsForm.watermark_url && !watermarkFile && <p className="text-xs text-stone-500 mt-2">Image actuelle : {settingsForm.watermark_url}</p>}
+                  {settingsForm.watermark_url && !watermarkFile && <p className="text-xs text-stone-500 mt-2">Image actuelle présente</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">Image de l'Hero (Bannière)</label>
+                  <label className="block text-sm font-medium text-stone-700 mb-2">Image de l'Héroïne (Bannière)</label>
                   <input type="file" accept="image/*" onChange={e => setHeroFile(e.target.files?.[0] || null)} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500 bg-white" />
-                  {settingsForm.hero_image_url && !heroFile && <p className="text-xs text-stone-500 mt-2">Image actuelle : {settingsForm.hero_image_url}</p>}
+                  {settingsForm.hero_image && !heroFile && <p className="text-xs text-stone-500 mt-2">Image actuelle présente</p>}
                 </div>
                 <hr className="border-stone-200" />
                 <div>
                   <label className="block text-sm font-medium text-stone-700 mb-2">Texte "Qui suis-je"</label>
-                  <textarea rows={8} value={settingsForm.about_text} onChange={e => setSettingsForm({ ...settingsForm, about_text: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
+                  <textarea rows={8} value={settingsForm.about_body} onChange={e => setSettingsForm({ ...settingsForm, about_body: e.target.value })} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-stone-700 mb-2">Image "Qui suis-je"</label>
                   <input type="file" accept="image/*" onChange={e => setAboutImageFile(e.target.files?.[0] || null)} className="w-full px-4 py-3 rounded-xl border border-stone-200 focus:ring-emerald-500 focus:border-emerald-500 bg-white" />
-                  {settingsForm.about_image_url && !aboutImageFile && <p className="text-xs text-stone-500 mt-2">Image actuelle : {settingsForm.about_image_url}</p>}
+                  {settingsForm.about_image && !aboutImageFile && <p className="text-xs text-stone-500 mt-2">Image actuelle présente</p>}
                 </div>
                 <button type="submit" disabled={uploading} className="w-full py-4 bg-stone-900 text-white font-medium rounded-xl hover:bg-stone-800 transition-colors disabled:opacity-50">
                   {uploading ? 'Enregistrement...' : 'Enregistrer les paramètres'}

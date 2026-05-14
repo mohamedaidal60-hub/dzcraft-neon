@@ -284,14 +284,14 @@ app.post('/api/orders', async (req, res) => {
     const userResult = await getPool().query('SELECT * FROM users WHERE id = $1', [user_id]);
     const user = userResult.rows[0];
     
-    if (user && user.email) {
-      // await emailService.sendOrderConfirmation(user.email, {
-        name: `${user.first_name} ${user.last_name}`,
-        orderId: orderId,
-        total: total_amount,
-        items: items
-      });
-    }
+    // if (user && user.email) {
+    //   await emailService.sendOrderConfirmation(user.email, {
+    //     name: `${user.first_name} ${user.last_name}`,
+    //     orderId: orderId,
+    //     total: total_amount,
+    //     items: items
+    //   });
+    // }
     
     for (const item of items) {
       await getPool().query(
@@ -339,14 +339,14 @@ app.post('/api/admin/orders/:id/tracking', async (req, res) => {
     `, [orderId]);
     
     const order = result.rows[0];
-    if (order && order.email) {
-      // await emailService.sendTrackingEmail(order.email, {
-        name: `${order.first_name} ${order.last_name}`,
-        orderId: orderId,
-        trackingNumber: tracking_number,
-        carrier: carrier
-      });
-    }
+    // if (order && order.email) {
+    //   await emailService.sendTrackingEmail(order.email, {
+    //     name: `${order.first_name} ${order.last_name}`,
+    //     orderId: orderId,
+    //     trackingNumber: tracking_number,
+    //     carrier: carrier
+    //   });
+    // }
     
     res.json({ success: true });
   } catch (error: any) {

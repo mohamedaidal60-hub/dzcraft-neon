@@ -8,7 +8,7 @@ const pool = new Pool({
   }
 });
 
-export default async function (req: any, res: any) {
+export default async function handler(req: any, res: any) {
   try {
     const { category } = req.query;
     let query = `

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { useStore } from '../store';
-import { ShoppingBag, ChevronLeft, Check } from 'lucide-react';
+import { ShoppingBag, ChevronLeft, Check, ChevronDown } from 'lucide-react';
 
 export default function Product() {
   const { id } = useParams<{ id: string }>();
@@ -102,7 +102,7 @@ export default function Product() {
             {product.category_name}
           </div>
           <h1 className="text-4xl md:text-5xl font-serif mb-4">{product.name}</h1>
-          <div className="text-2xl font-medium mb-8">{product.price.toFixed(2)} €</div>
+          <div className="text-2xl font-medium mb-8">{Number(product.price).toFixed(2)} €</div>
           
           <div className="prose prose-stone mb-12 text-stone-600">
             <p>{product.description}</p>

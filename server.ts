@@ -7,6 +7,9 @@ import fs from 'fs';
 import pkg from 'pg';
 const { Pool } = pkg;
 import 'dotenv/config';
+import Stripe from 'stripe';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,6 +32,16 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ limit: '10mb', extended: true }));
+
+  // Debug Env
+  app.get('/api/debug-env', (req, res) => {
+    res.json({
+      hasDbUrl: !!process.env.DATABASE_URL,
+      dbUrlPrefix: process.env.DATABASE_URL ? process.env.DATABASE_URL.substring(0, 15) : 'none',
+      nodeEnv: process.env.NODE_ENV
+    });
+  });
 
   // Health check
   app.get('/api/health', async (req, res) => {
@@ -46,7 +59,7 @@ async function startServer() {
     }
   });
 
-  // Upload endpoint (Store as Base64 for maximum reliability on Neon)
+  // Upload endpoint
   app.post('/api/upload', upload.single('file'), async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
@@ -121,10 +134,11 @@ async function startServer() {
         SELECT p.*, c.name as category_name, c.slug as category_slug 
         FROM products p 
         LEFT JOIN categories c ON p.category_id = c.id
+        WHERE 1=1
       `;
       let values: any[] = [];
       if (category) {
-        query += ' WHERE c.slug = $1';
+        query += ' AND c.slug = $1';
         values = [category];
       }
       const dbRes = await pool.query(query, values);
@@ -174,17 +188,77 @@ async function startServer() {
     }
   });
 
+  app.post('/api/clients', async (req, res) => {
+    const { name, email, phone } = req.body;
+    try {
+      const result = await pool.query(
+        'INSERT INTO clients (name, email, phone) VALUES ($1, $2, $3) RETURNING id',
+        [name, email, phone]
+      );
+      res.json({ success: true, id: result.rows[0].id });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
   // Admin
+  app.get('/api/admin/products', async (req, res) => {
+    try {
+      const result = await pool.query('SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id ORDER BY p.created_at DESC');
+      res.json(result.rows);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   app.post('/api/admin/products', async (req, res) => {
-    const { name, slug, description, price, category_id, image_url } = req.body;
+    const { name, slug, description, price, category_id, image_url, target_group } = req.body;
     try {
       const dbRes = await pool.query(
-        'INSERT INTO products (name, slug, description, price, category_id, image_url) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-        [name, slug, description, parseFloat(price), parseInt(category_id), image_url]
+        'INSERT INTO products (name, slug, description, price, category_id, image_url, target_group) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+        [name, slug, description, parseFloat(price), parseInt(category_id), image_url, target_group || []]
       );
       res.json({ success: true, id: dbRes.rows[0].id });
     } catch (error: any) {
       res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.put('/api/admin/products/:id', async (req, res) => {
+    const { name, slug, description, price, category_id, image_url, target_group } = req.body;
+    try {
+      await pool.query(
+        'UPDATE products SET name = $1, slug = $2, description = $3, price = $4, category_id = $5, image_url = $6, target_group = $7 WHERE id = $8',
+        [name, slug, description, parseFloat(price), parseInt(category_id), image_url, target_group || [], req.params.id]
+      );
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.delete('/api/admin/products/:id', async (req, res) => {
+    try {
+      await pool.query('DELETE FROM variants WHERE product_id = $1', [req.params.id]);
+      await pool.query('DELETE FROM products WHERE id = $1', [req.params.id]);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
+  app.get('/api/admin/clients', async (req, res) => {
+    try {
+      const result = await pool.query('SELECT * FROM clients ORDER BY created_at DESC');
+      res.json(result.rows);
+    } catch (error: any) {
+      // Fallback to users if clients table doesn't exist yet or is empty
+      try {
+        const usersResult = await pool.query("SELECT id, first_name || ' ' || last_name as name, email, phone, created_at FROM users WHERE role = 'user' ORDER BY created_at DESC");
+        res.json(usersResult.rows);
+      } catch (err: any) {
+        res.status(500).json({ error: error.message });
+      }
     }
   });
 
@@ -243,12 +317,25 @@ async function startServer() {
       const dbRes = await pool.query(`
         SELECT o.*, u.first_name, u.last_name, u.email 
         FROM orders o 
-        JOIN users u ON o.user_id = u.id 
+        LEFT JOIN users u ON o.user_id = u.id 
         ORDER BY o.created_at DESC
       `);
       res.json(dbRes.rows);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post('/api/admin/orders/:id/tracking', async (req, res) => {
+    const { tracking_number, carrier } = req.body;
+    try {
+      await pool.query(
+        'UPDATE orders SET tracking_number = $1, carrier = $2, status = $3 WHERE id = $4',
+        [tracking_number, carrier, 'shipped', req.params.id]
+      );
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ success: false, error: error.message });
     }
   });
 
@@ -259,7 +346,7 @@ async function startServer() {
       await client.query('BEGIN');
       const orderRes = await client.query(
         'INSERT INTO orders (user_id, total_amount, shipping_address, shipping_city, shipping_postal_code, status) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
-        [user_id, total_amount, shipping_address, shipping_city, shipping_postal_code, 'pending']
+        [user_id || null, total_amount, shipping_address, shipping_city, shipping_postal_code, 'pending']
       );
       const orderId = orderRes.rows[0].id;
       
@@ -276,6 +363,35 @@ async function startServer() {
       res.status(500).json({ success: false, error: error.message });
     } finally {
       client.release();
+    }
+  });
+
+  // Stripe
+  app.post('/api/create-checkout-session', async (req, res) => {
+    const { items, email, orderId } = req.body;
+    try {
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        customer_email: email,
+        line_items: items.map((item: any) => ({
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: item.name,
+              images: [item.image_url],
+            },
+            unit_amount: Math.round(item.price * 100),
+          },
+          quantity: item.quantity,
+        })),
+        mode: 'payment',
+        success_url: `${process.env.APP_URL || 'http://localhost:3000'}/checkout?success=true&orderId=${orderId}`,
+        cancel_url: `${process.env.APP_URL || 'http://localhost:3000'}/checkout?canceled=true`,
+        metadata: { orderId: String(orderId) }
+      });
+      res.json({ id: session.id, url: session.url });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   });
 
@@ -299,3 +415,4 @@ startServer().catch(err => {
   console.error('Failed to start server:', err);
   process.exit(1);
 });
+
