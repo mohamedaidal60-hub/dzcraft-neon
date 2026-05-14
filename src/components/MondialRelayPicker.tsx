@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MapPin, Info } from 'lucide-react';
 
 interface RelayPoint {
@@ -16,24 +16,36 @@ interface MondialRelayPickerProps {
 }
 
 export default function MondialRelayPicker({ onSelect, zipCode }: MondialRelayPickerProps) {
-  const [address, setAddress] = useState('');
   const [saved, setSaved] = useState(false);
+  const [selectedRelay, setSelectedRelay] = useState<RelayPoint | null>(null);
+  const widgetRef = useRef<boolean>(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!address.trim()) return;
-
-    const relay = {
-      ID: 'MANUAL',
-      Nom: 'Point Relais Choisi',
-      Adresse1: address,
-      CP: zipCode || '',
-      Ville: '',
-      Pays: 'FR'
-    };
-    onSelect(relay);
-    setSaved(true);
-  };
+  useEffect(() => {
+    if (!saved && !widgetRef.current && (window as any).$) {
+      const $ = (window as any).$;
+      $("#Zone_Widget").MR_ParcelShopPicker({
+        Target: "#Target_Widget",
+        Brand: "BDTEST  ", // Identifiant test fourni
+        Country: "FR",
+        PostCode: zipCode || "75000",
+        Responsive: true,
+        OnParcelShopSelected: (shop: any) => {
+          const relay = {
+            ID: shop.ID,
+            Nom: shop.Nom,
+            Adresse1: shop.Adresse1,
+            CP: shop.CP,
+            Ville: shop.Ville,
+            Pays: 'FR'
+          };
+          setSelectedRelay(relay);
+          onSelect(relay);
+          setSaved(true);
+        }
+      });
+      widgetRef.current = true;
+    }
+  }, [saved, zipCode, onSelect]);
 
   return (
     <div className="space-y-4">
@@ -49,32 +61,12 @@ export default function MondialRelayPicker({ onSelect, zipCode }: MondialRelayPi
               <div className="bg-stone-50 p-4 rounded-xl border border-stone-100 flex gap-3 mb-2">
                 <Info className="w-5 h-5 text-stone-400 shrink-0 mt-0.5" />
                 <p className="text-xs text-stone-600 leading-relaxed">
-                  Veuillez indiquer le nom et l'adresse du <strong>Point Relais</strong> où vous souhaitez être livré. 
-                  Vous pouvez trouver le plus proche sur le site de Mondial Relay si besoin.
+                  Veuillez utiliser la carte ci-dessous pour choisir votre Point Relais.
                 </p>
               </div>
               
-              <div>
-                <label className="block text-xs font-bold text-stone-500 uppercase tracking-wider mb-2 ml-1">
-                  Adresse du Point Relais
-                </label>
-                <textarea 
-                  required
-                  value={address}
-                  onChange={e => setAddress(e.target.value)}
-                  className="w-full px-5 py-4 bg-stone-50 border border-stone-200 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all text-sm"
-                  placeholder="Ex: Tabac de la Place, 12 rue de la Paix, 75002 Paris"
-                  rows={3}
-                />
-              </div>
-
-              <button 
-                type="button"
-                onClick={handleSubmit}
-                className="w-full py-4 bg-emerald-600 text-white font-bold rounded-2xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20"
-              >
-                Confirmer ce point relais
-              </button>
+              <div id="Zone_Widget" className="rounded-xl overflow-hidden border border-border min-h-[400px]"></div>
+              <input type="hidden" id="Target_Widget" />
             </div>
           ) : (
             <div className="flex items-start gap-4 bg-emerald-50 p-5 rounded-2xl border border-emerald-100 animate-in fade-in zoom-in-95">
@@ -83,13 +75,22 @@ export default function MondialRelayPicker({ onSelect, zipCode }: MondialRelayPi
               </div>
               <div className="flex-1 text-sm">
                 <h4 className="font-bold text-emerald-900">Point Relais Sélectionné</h4>
-                <p className="text-emerald-800 mt-1 leading-relaxed">{address}</p>
+                {selectedRelay && (
+                  <>
+                    <p className="text-emerald-800 mt-1 leading-relaxed font-semibold">{selectedRelay.Nom}</p>
+                    <p className="text-emerald-700 leading-relaxed">{selectedRelay.Adresse1}</p>
+                    <p className="text-emerald-700 leading-relaxed">{selectedRelay.CP} {selectedRelay.Ville}</p>
+                  </>
+                )}
                 <button 
                   type="button" 
-                  onClick={() => setSaved(false)} 
+                  onClick={() => {
+                    setSaved(false);
+                    widgetRef.current = false;
+                  }} 
                   className="mt-4 text-xs font-bold text-emerald-600 hover:underline flex items-center gap-1"
                 >
-                  Modifier l'adresse
+                  Modifier le point relais
                 </button>
               </div>
             </div>

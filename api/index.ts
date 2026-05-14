@@ -354,4 +354,67 @@ app.post('/api/admin/orders/:id/tracking', async (req, res) => {
   }
 });
 
+import Stripe from 'stripe';
+app.post('/api/create-checkout-session', async (req, res) => {
+  const { items, email, orderId } = req.body;
+
+  if (!items || items.length === 0) return res.status(400).json({ error: 'Panier vide' });
+
+  try {
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY!;
+    const stripe = new Stripe(stripeSecretKey, { apiVersion: '2023-10-16' as any });
+
+    const parsePrice = (p: any) => {
+      if (typeof p === 'number') return p;
+      if (typeof p === 'string') return parseFloat(p.replace(',', '.')) || 0;
+      return 0;
+    };
+
+    const lineItems = items.map((item: any) => ({
+      price_data: {
+        currency: 'eur',
+        product_data: {
+          name: item.name,
+          description: [item.size ? `Taille: ${item.size}` : '', item.color ? `Couleur: ${item.color}` : ''].filter(Boolean).join(' · ') || undefined,
+        },
+        unit_amount: Math.round(parsePrice(item.price) * 100),
+      },
+      quantity: item.quantity,
+    }));
+
+    lineItems.push({
+      price_data: {
+        currency: 'eur',
+        product_data: {
+          name: 'Livraison Point Relais',
+        },
+        unit_amount: 499,
+      },
+      quantity: 1,
+    });
+
+    const baseUrl = process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : 'https://dz-farah-backup.vercel.app';
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: lineItems,
+      mode: 'payment',
+      customer_email: email || undefined,
+      success_url: `${baseUrl}/checkout?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/checkout`,
+      metadata: { order_id: orderId || '' },
+    });
+
+    res.status(200).json({ url: session.url });
+  } catch (error: any) {
+    console.error('Stripe checkout error:', error);
+    res.status(500).json({ error: error.message || 'Erreur interne' });
+  }
+});
+
 export default app;
+i m p o r t   S t r i p e   f r o m   ' s t r i p e ' ;  
+ a p p . p o s t ( ' / a p i / c r e a t e - c h e c k o u t - s e s s i o n ' ,   a s y n c   ( r e q ,   r e s )   = >   {   c o n s t   s t r i p e   =   n e w   S t r i p e ( p r o c e s s . e n v . S T R I P E _ S E C R E T _ K E Y ! ,   {   a p i V e r s i o n :   ' 2 0 2 3 - 1 0 - 1 6 '   a s   a n y   } ) ;   t r y   {   c o n s t   {   i t e m s ,   e m a i l ,   o r d e r I d   }   =   r e q . b o d y ;   c o n s t   l i n e I t e m s   =   i t e m s . m a p ( ( i t e m :   a n y )   = >   ( {   p r i c e _ d a t a :   {   c u r r e n c y :   ' e u r ' ,   p r o d u c t _ d a t a :   {   n a m e :   i t e m . n a m e   } ,   u n i t _ a m o u n t :   M a t h . r o u n d ( ( t y p e o f   i t e m . p r i c e   = = =   ' n u m b e r '   ?   i t e m . p r i c e   :   p a r s e F l o a t ( i t e m . p r i c e . t o S t r i n g ( ) . r e p l a c e ( ' , ' ,   ' . ' ) ) )   *   1 0 0 )   } ,   q u a n t i t y :   i t e m . q u a n t i t y   } ) ) ;   l i n e I t e m s . p u s h ( {   p r i c e _ d a t a :   {   c u r r e n c y :   ' e u r ' ,   p r o d u c t _ d a t a :   {   n a m e :   ' L i v r a i s o n   P o i n t   R e l a i s '   } ,   u n i t _ a m o u n t :   4 9 9   } ,   q u a n t i t y :   1   } ) ;   c o n s t   s e s s i o n   =   a w a i t   s t r i p e . c h e c k o u t . s e s s i o n s . c r e a t e ( {   p a y m e n t _ m e t h o d _ t y p e s :   [ ' c a r d ' ] ,   l i n e _ i t e m s :   l i n e I t e m s ,   m o d e :   ' p a y m e n t ' ,   s u c c e s s _ u r l :   ' h t t p s : / / d z - f a r a h - b a c k u p . v e r c e l . a p p / c h e c k o u t ? s u c c e s s = t r u e ' ,   c a n c e l _ u r l :   ' h t t p s : / / d z - f a r a h - b a c k u p . v e r c e l . a p p / c h e c k o u t '   } ) ;   r e s . j s o n ( {   u r l :   s e s s i o n . u r l   } ) ;   }   c a t c h   ( e r r o r :   a n y )   {   r e s . s t a t u s ( 5 0 0 ) . j s o n ( {   e r r o r :   e r r o r . m e s s a g e   } ) ;   }   } ) ;  
+ 
